@@ -89,6 +89,7 @@ async function uploadRemoteFileToBlob(opts: {
   const body = Buffer.from(arrayBuffer);
 
   const blob = await put(opts.pathname, body, {
+    access: "private",
     contentType,
     addRandomSuffix: false,
   });
