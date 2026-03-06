@@ -1,0 +1,1150 @@
+@page {
+    size: A4;
+    margin: 20mm 15mm;
+}
+
+
+:root {
+    --dark-green: #0C2218;
+    --light-green: #A6FE84;
+    --pale-green: #dff7d6;
+    --grid: #111;
+
+    --risk-high: #f0180a;
+    --risk-medium: #f4b400;
+    --risk-low: #8bc34a;
+
+    --meta-grey: #8b8b8b;
+    --paper: #f5f5f5;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Figtree, opensans, Arial, Helvetica, sans-serif;
+}
+
+.page-break {
+    break-before: page;
+    page-break-before: always;
+}
+
+.page {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+/* Cover Page */
+
+.coverHead {
+    margin-top: 7mm;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 20mm;
+    text-align: center;
+}
+
+.coverLogo img {
+    max-height: 20mm;
+    padding-left: 10mm;
+}
+
+.website {
+    font-size: 14px;
+    border-left: 1px solid #333;
+    padding-top: 7mm;
+    padding-left: 6mm;
+    height: 12mm;
+    width: 28%;
+    text-align: left;
+}
+
+.coverTitleBlock {
+    background-color: var(--light-green);
+    height: 75mm;
+    width: 100%;
+    margin-top: 12mm;
+    margin-bottom: 0 !important;
+}
+
+.coverTitle {
+    font-size: 90px;
+    font-weight: 700;
+    color: var(--dark-green);
+    text-align: left;
+    padding-top: 15mm;
+    padding-left: 15mm;
+    margin-bottom: 0 !important;
+}
+
+.dateBlock {
+    background-color: var(--light-green);
+    height: 50mm;
+    width: 100%;
+    margin-top: 0 !important;
+    position: relative;
+}
+
+.coverDate {
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--dark-green);
+    text-align: left;
+    padding-top: 10mm;
+    padding-left: 15mm;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.triangle {
+    width: 0px;
+    height: 0px;
+    border-style: solid;
+    border-width: 0 0 50mm 38mm;
+    border-color: transparent transparent #dbdbdb transparent;
+    transform: rotate(0deg);
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.grayBlock {
+    background-color: #dbdbdb;
+    height: 32mm;
+    width: 100%;
+    margin-top: 0 !important;
+}
+
+.whiteBlock {
+    background-color: #ffffff;
+    height: 29mm;
+    width: 100%;
+    margin-top: 0 !important;
+    border-left: 6mm solid var(--light-green);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding-right: 20mm !important;
+}
+
+.infoLabel {
+    font-size: 14px;
+    font-weight: 700;
+    color: #000000;
+    text-align: left;
+}
+
+.infoValue {
+    font-size: 13px;
+    font-weight: 400;
+    color: #000000;
+    text-align: left;
+}
+
+.secondGrayBlock {
+    background-color: #dbdbdb;
+    height: 23mm;
+    width: 100%;
+    margin-top: 0 !important;
+}
+
+.ConfidentialityBlock h4 {
+    margin-bottom: 0 !important;
+    margin-top: 10px !important;
+}
+
+.ConfidentialityBlock p {
+    font-size: 14px;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+/* Pages */
+.pages h2 {
+    font-size: 44px;
+    color: var(--dark-green);
+    margin-top: 20mm;
+}
+
+.pages p {
+    font-size: 18.5px;
+    font-style: italic;
+    line-height: 24px;
+}
+
+/**************************************** Page 2 *******************************************/
+
+/* Priority Table */
+
+table.priority-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    border: 1px solid #000;
+    margin-top: 10mm;
+}
+
+table.priority-table th,
+table.priority-table td {
+    border: 1px solid #000;
+    padding: 0;
+}
+
+/* Big title band */
+.title-row th {
+    background: var(--dark-green);
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    font-size: 30px;
+    text-align: center;
+    height: 80px;
+}
+
+/* Column header band */
+.col-head th {
+    background: var(--neon-green);
+    color: #000;
+    text-transform: uppercase;
+    font-weight: 800;
+    font-size: 20px;
+    height: 48px;
+    padding: 0 12px;
+}
+
+
+.col-head {
+    text-align: center;
+    background-color: var(--pale-green);
+}
+
+/* Data rows */
+tbody td {
+    height: 38px;
+    font-size: 18px;
+}
+
+/* Column sizing to match screenshot proportions */
+col.col-priority {
+    width: 110px;
+}
+
+col.col-offering {
+    width: auto;
+}
+
+/* Priority numbers styling */
+td.priority {
+    text-align: center;
+    font-weight: 700;
+    background: #fff;
+}
+
+td.offering {
+    background: #fff;
+    padding: 0 12px !important;
+}
+
+
+/**************************************** Our edge-table *********************************************/
+/* targeted client edge-table table */
+
+table#edge-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+#edge-table th,
+#edge-table td {
+    border: 1px solid #000;
+    padding: 14px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 14px;
+}
+
+#edge-table thead th {
+    background-color: var(--pale-green);
+    text-transform: uppercase;
+    font-weight: 800;
+    font-size: 20px;
+}
+
+#edge-table tbody td {
+    height: 48px;
+}
+
+
+/**************************************** Target client *******************************************/
+
+table#sector-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+#sector-table th,
+#sector-table td {
+    border: 1px solid #000;
+    padding: 12px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 14px;
+}
+
+/* Title row */
+#sector-table .title-row th {
+    background-color: var(--dark-green);
+    color: #ffffff;
+    font-size: 30px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* Column headers */
+#sector-table .header-row th {
+    background-color: var(--pale-green);
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 10px;
+}
+
+/* Priority column emphasis */
+#sector-table td.priority {
+    font-weight: 700;
+    font-size: 18px;
+}
+
+
+/**************************************** Our Brand *********************************************/
+
+/* Our Core Value Table */
+
+h3.sub-heading {
+    font-size: 22px;
+}
+
+.core-value {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.core-value__title {
+    background: #0f261f;
+    /* dark green */
+    color: #fff;
+    text-align: center;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 28px 16px;
+    font-size: 34px;
+    letter-spacing: 0.5px;
+}
+
+.core-value__intro {
+    background: var(--pale-green);
+    padding: 10px;
+    font-style: italic;
+    font-size: 18px;
+    line-height: 1.25;
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;
+}
+
+table#core-value-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+#core-value-table th,
+#core-value-table td {
+    border: 1px solid #000;
+    padding: 10px 12px;
+    vertical-align: middle;
+    font-size: 16px;
+}
+
+#core-value-table thead th {
+    background: var(--pale-green);
+    font-weight: 800;
+    text-transform: uppercase;
+    text-align: center;
+    font-size: 20px;
+    padding: 10px 12px;
+}
+
+#core-value-table tbody td {
+    height: 34px;
+}
+
+/**************************************** Sales & Marketing Strategy*********************************************/
+
+.sales {
+    width: 100%;
+    max-width: 920px;
+    border-collapse: collapse;
+    table-layout: fixed;
+    /* keeps column spacing consistent */
+    font-family: Arial, Helvetica, sans-serif;
+    border: 2px solid #1a1a1a;
+}
+
+.sales col.col-no {
+    width: 110px;
+}
+
+.sales col.col-activity {
+    width: auto;
+}
+
+.sales col.col-score {
+    width: 120px;
+}
+
+.sales th,
+.sales td {
+    border: 1.5px solid #1a1a1a;
+    padding: 14px 12px;
+    font-size: 16px;
+}
+
+.sales thead tr.title th {
+    background: var(--dark-green);
+    color: #ffffff;
+    text-align: center;
+    font-weight: 800;
+    letter-spacing: 1px;
+    font-size: 28px;
+    padding: 18px 12px;
+    border-bottom-width: 2px;
+}
+
+.sales thead tr.head th {
+    background: var(--pale-green);
+    color: #000000;
+    text-align: center;
+    font-weight: 800;
+    font-size: 18px;
+    padding: 12px 10px;
+}
+
+.sales tbody tr td.no {
+    text-align: center;
+    font-weight: 700;
+}
+
+.sales tbody td.activity {
+    height: 52px;
+    /* preserves row height/spacing */
+}
+
+.sales tbody td.score {
+    text-align: center;
+}
+
+
+/**************************************** Objectives & Strategies *********************************************/
+
+.finance {
+    width: 100%;
+    max-width: 920px;
+    border-collapse: collapse;
+    table-layout: fixed;
+    /* preserves column spacing */
+    font-family: Arial, Helvetica, sans-serif;
+    border: 2px solid #111;
+}
+
+.finance col.col-num {
+    width: 70px;
+}
+
+.finance col.col-title {
+    width: auto;
+}
+
+.finance th,
+.finance td {
+    border: 1.5px solid #111;
+    padding: 10px 12px;
+    font-size: 16px;
+}
+
+.finance thead th {
+    background: var(--dark-green);
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    padding: 12px 12px;
+}
+
+.finance thead th.num {
+    text-align: left;
+    font-size: 20px;
+}
+
+.finance thead th.title {
+    text-align: left;
+    font-size: 20px;
+}
+
+.finance tbody tr.label td {
+    background: var(--pale-green);
+    font-weight: 800;
+    padding: 6px 12px;
+    /* thinner green bands like the screenshot */
+}
+
+.finance tbody tr.spacer td {
+    height: 36px;
+    background: #fff;
+}
+
+.finance tbody tr.entry td {
+    height: 38px;
+    background: #fff;
+}
+
+/* Next 90 Days Table */
+
+.next-90-days {
+    width: 100%;
+    max-width: 960px;
+    border-collapse: collapse;
+    table-layout: fixed;
+    /* keeps column widths consistent */
+    font-family: Arial, Helvetica, sans-serif;
+    border: 2px solid #111;
+}
+
+.next-90-days col.col-strategy {
+    width: auto;
+}
+
+.next-90-days col.col-date {
+    width: 180px;
+}
+
+.next-90-days th,
+.next-90-days td {
+    border: 1.5px solid #111;
+    padding: 12px 14px;
+    font-size: 16px;
+}
+
+/* Main title row */
+.next-90-days thead tr.title th {
+    background: var(--dark-green);
+    color: #fff;
+    font-size: 26px;
+    font-weight: 800;
+    text-align: center;
+    padding: 16px 14px;
+}
+
+/* Column headers */
+.next-90-days thead tr.head th {
+    background: var(--dark-green);
+    color: #fff;
+    font-weight: 800;
+    text-align: left;
+    font-size: 17px;
+    padding: 10px 14px;
+    border-top: solid 3px #fff;
+}
+
+.next-90-days thead tr.head th.date {
+    text-align: center;
+}
+
+/* Green pillar label rows */
+.next-90-days tbody tr.pillar td {
+    background: var(--pale-green);
+    font-weight: 800;
+    padding: 8px 14px;
+}
+
+/* Empty spacing rows beneath each pillar */
+.next-90-days tbody tr.entry td {
+    height: 42px;
+    background: #fff;
+}
+
+.next-90-days tbody td.date {
+    text-align: center;
+}
+
+/**************************************** KPIs *********************************************/
+
+.kpis {
+    width: 100%;
+    max-width: 980px;
+    border-collapse: collapse;
+    table-layout: fixed;
+    /* preserves column spacing */
+    font-family: Arial, Helvetica, sans-serif;
+    border: 2px solid #111;
+}
+
+.kpis col.col-measures {
+    width: auto;
+}
+
+.kpis col.col-target {
+    width: 210px;
+}
+
+.kpis th,
+.kpis td {
+    border: 1.5px solid #111;
+    padding: 10px 12px;
+    font-size: 16px;
+    vertical-align: top;
+}
+
+/* Title */
+.kpis thead tr.title th {
+    background: var(--dark-green);
+    color: #fff;
+    font-weight: 800;
+    font-size: 28px;
+    text-align: center;
+    padding: 14px 12px;
+}
+
+/* Column headers */
+.kpis thead tr.head th {
+    background: var(--dark-green);
+    color: var(--pale-green);
+    font-weight: 800;
+    text-align: left;
+    padding: 8px 12px;
+    border-top: solid 3px #fff;
+}
+
+.kpis thead tr.head th:last-child {
+    text-align: center;
+    color: var(--pale-green);
+    border-top: solid 3px #fff;
+}
+
+/* Section bands (Finance / Operations / etc.) */
+.kpis tbody tr.section td {
+    background: var(--pale-green);
+    font-weight: 800;
+    padding: 10px 12px;
+}
+
+.kpis tbody tr.section td:last-child {
+    text-align: center;
+}
+
+/* Measure rows */
+.kpis tbody tr.measure td {
+    background: #fff;
+    padding: 8px 12px;
+}
+
+.kpis tbody tr.measure td:first-child {
+    font-style: italic;
+}
+
+.kpis tbody tr.measure td:last-child {
+    text-align: center;
+}
+
+/* Give the final row a bit more breathing room like the screenshot */
+.kpis tbody tr.measure.long td {
+    padding-top: 12px;
+    padding-bottom: 18px;
+    line-height: 1.35;
+}
+
+
+/**************************************** Risk Register *********************************************/
+
+.risk-register {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    /* keeps columns aligned within page */
+    font-family: Arial, Helvetica, sans-serif;
+    border: 2px solid var(--grid);
+}
+
+.risk-register th,
+.risk-register td {
+    border: 1.5px solid var(--grid);
+    padding: 8px 10px;
+    font-size: 12px;
+    /* slightly smaller for PDF */
+    vertical-align: top;
+    overflow-wrap: anywhere;
+    /* prevents overflow */
+    word-break: break-word;
+}
+
+/* Column widths as percentages (PDF-safe) */
+.risk-register col.col-risk {
+    width: 16%;
+}
+
+.risk-register col.col-details {
+    width: 30%;
+}
+
+.risk-register col.col-small {
+    width: 4.5%;
+}
+
+.risk-register col.col-controls {
+    width: 30%;
+}
+
+/* Header bars */
+.risk-register .title {
+    background: var(--dark-green);
+    color: #fff;
+    font-weight: 800;
+    font-size: 26px;
+    text-align: center;
+    padding: 14px 10px;
+    letter-spacing: .5px;
+}
+
+.risk-register .subtitle {
+    background: var(--light-green);
+    color: #000;
+    font-weight: 800;
+    font-size: 16px;
+    text-align: center;
+    padding: 8px 10px;
+}
+
+.risk-register .meta-bar td {
+    background: var(--meta-grey);
+    height: 18px;
+    padding: 0;
+}
+
+/* Meta rows with boxed values */
+.risk-register .meta td {
+    background: var(--paper);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 12px 12px;
+}
+
+.risk-register .meta .pair {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.risk-register .meta .label {
+    white-space: nowrap;
+}
+
+.risk-register .meta .box {
+    display: inline-block;
+    min-width: 140px;
+    padding: 6px 10px;
+    background: #fff;
+    border: none;
+    text-align: left;
+    font-weight: 400;
+}
+
+/* Table headings */
+.risk-register .head th,
+.risk-register .subhead th {
+    background: #fff;
+    font-weight: 800;
+    text-align: center;
+}
+
+.risk-register ul {
+    margin: 0;
+    padding-left: 16px;
+}
+
+/* Input styling for S/L */
+.risk-register input[type="number"] {
+    width: 100%;
+    border: 0;
+    outline: none;
+    text-align: center;
+    font-weight: 700;
+    font-size: 10px;
+    background: transparent;
+    padding: 4px 0;
+    -moz-appearance: textfield;
+}
+
+.risk-register input[type="number"]::-webkit-outer-spin-button,
+.risk-register input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.risk-register .t-score {
+    text-align: center;
+    font-weight: 700;
+    font-size: 10px;
+    padding: 12px 2px;
+}
+
+.risk-register .risk-level {
+    text-align: center;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: .5px;
+    padding: 12px 2px;
+}
+
+.risk-register .risk-level.high {
+    background: var(--risk-high);
+    color: #000;
+}
+
+.risk-register .risk-level.medium {
+    background: var(--risk-medium);
+    color: #000;
+}
+
+.risk-register .risk-level.low {
+    background: var(--risk-low);
+    color: #000;
+}
+
+.risk-register .risk-name {
+    font-weight: 800;
+    font-size: 13px;
+}
+
+/* Print/PDF niceties */
+@media print {
+    .risk-register {
+        page-break-inside: auto;
+    }
+
+    .risk-register tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+}
+
+/**************************************** SWOT *********************************************/
+.swot {
+    width: 100%;
+    max-width: 1000px;
+    border-collapse: collapse;
+    table-layout: fixed;
+    /* keeps columns equal */
+    font-family: Arial, Helvetica, sans-serif;
+    border: 2px solid #111;
+}
+
+.swot col {
+    width: 50%;
+}
+
+.swot th,
+.swot td {
+    border: 1.5px solid #111;
+    padding: 12px 14px;
+    font-size: 16px;
+    vertical-align: top;
+}
+
+/* Title */
+.swot thead tr.title th {
+    background: var(--dark-green);
+    color: #fff;
+    font-weight: 800;
+    font-size: 28px;
+    text-align: center;
+    padding: 16px 14px;
+}
+
+/* Section headers */
+.swot thead tr.sections th {
+    font-weight: 800;
+    text-align: center;
+    font-size: 18px;
+    padding: 12px 10px;
+}
+
+.swot th.strengths {
+    background: #dff7d6;
+}
+
+.swot th.weaknesses {
+    background: #fde6d8;
+}
+
+.swot th.opportunities {
+    background: #e3f1ff;
+}
+
+.swot th.threats {
+    background: #f7a1b1;
+}
+
+/* Content rows */
+.swot tbody tr.entry td {
+    height: 48px;
+    /* consistent writing space */
+    background: #fff;
+}
+
+/**************************************** Pricing *********************************************/
+
+.pricing {
+    width: 100%;
+    max-width: 980px;
+    border-collapse: collapse;
+    table-layout: fixed;
+    /* keeps column spacing consistent */
+    font-family: Arial, Helvetica, sans-serif;
+    border: 2px solid #111;
+}
+
+.pricing col.col-desc {
+    width: auto;
+}
+
+.pricing col.col-price {
+    width: 140px;
+}
+
+.pricing th,
+.pricing td {
+    border: 1.5px solid #111;
+    padding: 12px 14px;
+    font-size: 16px;
+    vertical-align: middle;
+}
+
+/* Big company name header */
+.pricing thead tr.company th {
+    background: var(--dark-green);
+    color: #fff;
+    font-weight: 800;
+    font-size: 34px;
+    text-align: center;
+    padding: 18px 14px;
+}
+
+.pricing thead tr.address,
+.pricing thead tr.phone-email {
+    background: var(--pale-green);
+    font-weight: 400;
+    text-align: center;
+}
+
+.pricing tbody tr {
+    background: var(--pale-green);
+}
+
+.pricing thead tr.phone-email td {
+    padding: 0;
+    /* optional: lets the split div control spacing */
+}
+
+.phone-email-split {
+    display: flex;
+    width: 100%;
+}
+
+.phone-email-split>.phone,
+.phone-email-split>.email {
+    width: 50%;
+    text-align: center;
+    padding: 12px 14px;
+    /* match your cell padding */
+    box-sizing: border-box;
+}
+
+.phone-email-split>.email {
+    border-left: 1.5px solid #111;
+    /* mimic the table's internal border */
+}
+
+/* Subtitle row */
+.pricing thead tr.subtitle th {
+    background: var(--dark-green);
+    color: #fff;
+    font-weight: 700;
+    font-size: 16px;
+    text-align: center;
+    padding: 8px 14px;
+}
+
+/* Column headers */
+.pricing thead tr.head th {
+    background: rgb(182, 182, 182);
+    color: #000;
+    font-weight: 800;
+    text-align: center;
+    padding: 14px 12px;
+    font-size: 18px;
+}
+
+/* Body rows */
+.pricing tbody td {
+    background: #fff;
+    text-align: center;
+}
+
+.pricing tbody tr.alt td {
+    background: var(--alt-green);
+}
+
+/* .pricing tbody tr,
+.pricing tbody tr td {
+    height: 15px !important;
+    padding: 5px !important;
+} */
+
+/* Footer note */
+.pricing tfoot td {
+    background: var(--dark-green);
+    color: #fff;
+    font-weight: 700;
+    text-align: center;
+    padding: 10px 14px;
+    font-size: 14px;
+}
+
+/**************************************** Financial Forecast *********************************************/
+
+.financial-forecast {
+    width: 100%;
+    max-width: 1100px;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-family: Arial, Helvetica, sans-serif;
+    border: 2px solid var(--grid);
+    margin: 0 0 22px 0;
+}
+
+.financial-forecast col.col-item {
+    width: 230px;
+}
+
+.financial-forecast col.col-val {
+    width: auto;
+}
+
+.financial-forecast th,
+.financial-forecast td {
+    border: 1.5px solid var(--grid);
+    padding: 8px 10px;
+    font-size: 14px;
+    vertical-align: top;
+}
+
+/* Title row (table 1 only) */
+.financial-forecast thead tr.title th {
+    background: var(--dark-green);
+    color: #fff;
+    font-weight: 800;
+    font-size: 30px;
+    text-align: center;
+    padding: 16px 12px;
+}
+
+/* Column headers (both tables) */
+.financial-forecast thead tr.head th {
+    background: var(--dark-green);
+    color: #fff;
+    font-weight: 800;
+    text-align: center;
+    padding: 10px 8px;
+    font-size: 14px;
+}
+
+.financial-forecast thead tr.head th:first-child {
+    background: #fff;
+    color: #000;
+}
+
+/* Notes row (both tables) */
+.financial-forecast thead tr.subhead th {
+    background: #fff;
+    color: #000;
+    font-weight: 400;
+    text-align: center;
+    font-size: 13px;
+    font-style: italic;
+    padding: 8px 8px;
+}
+
+.financial-forecast thead tr.subhead th:first-child {
+    font-style: normal;
+}
+
+/* Section bands */
+.financial-forecast tbody tr.section td {
+    background: var(--pale-green);
+    font-weight: 800;
+    padding: 8px 10px;
+}
+
+/* Left labels */
+.financial-forecast td.label {
+    font-weight: 700;
+    background: #fff;
+}
+
+.financial-forecast td.sub {
+    font-style: italic;
+    font-weight: 500;
+    background: #fff;
+}
+
+/* Totals on left (boxed pale green) */
+.financial-forecast td.total-label {
+    font-weight: 800;
+    background: var(--pale-green);
+}
+
+/* Values */
+.financial-forecast td.val {
+    background: #fff;
+    text-align: center;
+    vertical-align: middle;
+    height: 34px;
+    text-align: center;
+}
+
+.financial-forecast td.val.total {
+    background: var(--pale-green);
+    font-weight: 700;
+    text-align: center;
+}
+
+/* Dark green left blocks */
+.financial-forecast td.dark-label {
+    background: var(--dark-green);
+    color: #fff;
+    font-weight: 700;
+}
+
+.financial-forecast tr.spacer td {
+    height: 14px;
+    background: #fff;
+    text-align: center;
+    font-weight: 700;
+}

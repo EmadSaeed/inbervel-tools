@@ -1,0 +1,262 @@
+* {
+    box-sizing: border-box;
+    font-family: Figtree, 'Open Sans', Arial, Helvetica, sans-serif;
+}
+
+.shell {
+    min-height: 100vh;
+    /* was: height: 100vh */
+    height: auto;
+    display: flex;
+    flex-direction: row;
+}
+
+.left {
+    background: #0C2218;
+    color: #e9ffe9;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.left,
+.right {
+    min-width: 0;
+    /* prevents flex overflow issues */
+}
+
+.brandRow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+
+.tagline {
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0.9;
+}
+
+.loginBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.loginText {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.ghostBtn {
+    background: transparent;
+    border: 1px solid rgba(233, 255, 233, 0.35);
+    color: #e9ffe9;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.right {
+    background: #fff;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.content {
+    width: 90%;
+
+}
+
+.content,
+.content * {
+    box-sizing: border-box;
+}
+
+.input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #d7d7d7;
+    border-radius: 2px;
+    font-size: 18px;
+    outline: none;
+    color: #000;
+    margin-top: 30px;
+}
+
+.primaryBtn {
+    margin: 14px auto;
+    width: 100%;
+    background: #a7ff72;
+    color: #000;
+    border: none;
+    border-radius: 0;
+    padding: 14px 16px;
+    cursor: pointer;
+    font-size: 20px;
+    text-align: center;
+}
+
+.primaryBtn:disabled {
+    /* opacity: 0.6; */
+    cursor: not-allowed;
+}
+
+.companyLine {
+    margin-top: 14px;
+    font-size: 14px;
+    color: #000;
+}
+
+.tableWrap {
+    margin-top: 34px;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    min-width: 520px;
+    border-collapse: collapse;
+    border: 1px solid #333;
+    font-size: 14px;
+    color: #000;
+}
+
+.table th,
+.table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #999;
+    vertical-align: top;
+}
+
+.table thead th {
+    border-bottom: 1px solid #333;
+    text-align: left;
+}
+
+.statusIcon {
+    margin-right: 8px;
+}
+
+.dateCol {
+    width: 160px;
+    white-space: nowrap;
+}
+
+.generateBtn {
+    margin: 14px auto;
+    width: 100%;
+    background: #0C2218;
+    color: #ffffff;
+    border: none;
+    border-radius: 0;
+    padding: 14px 16px;
+    cursor: pointer;
+    font-size: 20px;
+    text-align: center;
+}
+
+.generateBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.hint {
+    margin-top: 10px;
+    opacity: 0.75;
+    font-size: 14px;
+}
+
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: rgba(255, 255, 255, 0.95);
+    border-radius: 999px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* @media portrait */
+@media (orientation: portrait) {
+
+    .shell {
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .left {
+        width: 100%;
+        padding: 28px 20px;
+        height: auto;
+    }
+
+    .right {
+        width: 100%;
+        margin-top: 0;
+        /* was 40px */
+        justify-content: flex-start;
+        /* was center */
+        padding: 20px 0 28px;
+    }
+
+    .brandRow {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .loginBar {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        width: 100%;
+        border: #fff solid 1px;
+        padding: 12px;
+        margin-bottom: 30px;
+        margin-top: 30px;
+    }
+
+    .loginText {
+        text-align: center;
+        font-size: 20px;
+    }
+
+    .content {
+        width: min(92%, 640px);
+        margin: 0 auto;
+    }
+
+
+    .tableWrap {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .table {
+        min-width: 100%;
+        width: 100%;
+    }
+}
