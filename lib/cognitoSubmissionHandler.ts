@@ -89,7 +89,6 @@ async function uploadRemoteFileToBlob(opts: {
   const body = Buffer.from(arrayBuffer);
 
   const blob = await put(opts.pathname, body, {
-    access: "public",
     contentType,
     addRandomSuffix: false,
   });
@@ -199,39 +198,6 @@ export async function cognitoSubmissionHandler(payload: any) {
   const companyWebsite = getString(payload?.CompanyWebsite);
   const position = getString(payload?.JobTitle);
 
-  let companyLogoUrl: string | null = null;
-  let outputPdfUrl: string | null = null;
-
-  const latestDocumentUrl = getLatestDocumentUrl(payload);
-  if (latestDocumentUrl) {
-    const nsEmail = safeKeyPart(userEmail) || "unknown-email";
-    const nsFormId = safeKeyPart(data.formId) || "unknown-form";
-    const fileTitle = safeKeyPart(data.formTitle || `form-${data.formId}`) || `form-${data.formId}`;
-    const pathname = `user-uploads/${nsEmail}/${nsFormId}/${fileTitle}.pdf`;
-
-    outputPdfUrl = await uploadRemoteFileToBlob({
-      fileUrl: latestDocumentUrl,
-      pathname,
-      contentTypeHint: "application/pdf",
-    });
-  }
-
-  // Only form 29 (Final Step) includes the company logo upload field.
-  // For all other forms we skip the logo handling entirely.
-  if (data.formId === "29") {
-    const logo = getCompanyLogo(payload);
-
-    if (logo?.fileUrl?.startsWith("http")) {
-      companyLogoUrl = await uploadLogoToBlob({
-        userEmail,
-        companyName: companyName ?? "company",
-        fileUrl: logo.fileUrl,
-        filename: logo.filename,
-        contentType: logo.contentType,
-      });
-    }
-  }
-
   // Upsert: if a row already exists for this (formId, userEmail) pair, update it;
   // otherwise create a new row. This handles clients who re-submit a form.
   // Submissions are keyed by (formId, userEmail), so re-submits update the same row.
@@ -246,14 +212,12 @@ export async function cognitoSubmissionHandler(payload: any) {
       entryCreatedAt: data.entryCreatedAt,
       entryUpdatedAt: data.entryUpdatedAt,
       payload,
-      ...(outputPdfUrl ? { outputPdfUrl } : {}),
     },
     update: {
       formTitle: data.formTitle,
       entryCreatedAt: data.entryCreatedAt,
       entryUpdatedAt: data.entryUpdatedAt,
       payload,
-      ...(outputPdfUrl ? { outputPdfUrl } : {}),
     },
   });
 
@@ -267,7 +231,6 @@ export async function cognitoSubmissionHandler(payload: any) {
       phone,
       companyWebsite,
       position,
-      ...(companyLogoUrl ? { companyLogoUrl } : {}),
     },
     update: {
       ...(parsedName.firstName ? { firstName: parsedName.firstName } : {}),
@@ -276,7 +239,66 @@ export async function cognitoSubmissionHandler(payload: any) {
       ...(phone ? { phone } : {}),
       ...(companyWebsite ? { companyWebsite } : {}),
       ...(position ? { position } : {}),
-      ...(companyLogoUrl ? { companyLogoUrl } : {}),
     },
   });
+
+  const latestDocumentUrl = getLatestDocumentUrl(payload);
+  if (latestDocumentUrl) {
+    try {
+      const nsEmail = safeKeyPart(userEmail) || "unknown-email";
+      const nsFormId = safeKeyPart(data.formId) || "unknown-form";
+      const fileTitle =
+        safeKeyPart(data.formTitle || `form-${data.formId}`) ||
+        `form-${data.formId}`;
+      const pathname = `user-uploads/${nsEmail}/${nsFormId}/${fileTitle}.pdf`;
+
+      const outputPdfUrl = await uploadRemoteFileToBlob({
+        fileUrl: latestDocumentUrl,
+        pathname,
+        contentTypeHint: "application/pdf",
+      });
+
+      await prisma.cognitoSubmission.update({
+        where: {
+          formId_userEmail: { formId: data.formId, userEmail },
+        },
+        data: { outputPdfUrl },
+      });
+    } catch (error) {
+      console.warn("Document upload failed; submission row kept.", {
+        formId: data.formId,
+        userEmail,
+        error,
+      });
+    }
+  }
+
+  // Only form 29 (Final Step) includes the company logo upload field.
+  // For all other forms we skip the logo handling entirely.
+  if (data.formId === "29") {
+    const logo = getCompanyLogo(payload);
+
+    if (logo?.fileUrl?.startsWith("http")) {
+      try {
+        const companyLogoUrl = await uploadLogoToBlob({
+          userEmail,
+          companyName: companyName ?? "company",
+          fileUrl: logo.fileUrl,
+          filename: logo.filename,
+          contentType: logo.contentType,
+        });
+
+        await prisma.user.update({
+          where: { email: userEmail },
+          data: { companyLogoUrl },
+        });
+      } catch (error) {
+        console.warn("Company logo upload failed; user row kept.", {
+          formId: data.formId,
+          userEmail,
+          error,
+        });
+      }
+    }
+  }
 }
