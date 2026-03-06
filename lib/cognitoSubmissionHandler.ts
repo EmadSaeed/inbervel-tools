@@ -198,7 +198,7 @@ export async function cognitoSubmissionHandler(payload: any) {
   const parsedName = parseName(payload?.Name);
   const phone = getString(payload?.PhoneNumber);
   const companyWebsite = getString(payload?.CompanyWebsite);
-  const position = getString(payload?.JobTitle);
+  const position = getString(payload?.YourPosition) ?? getString(payload?.JobTitle);
 
   // Upsert: if a row already exists for this (formId, userEmail) pair, update it;
   // otherwise create a new row. This handles clients who re-submit a form.
