@@ -38,7 +38,7 @@ export async function uploadCompanyLogoToBlob(params: {
   const blobPath = `logos/${safeEmail}/form-${safeKeyPart(formId)}/${name}`;
 
   const uploaded = await put(blobPath, body, {
-    access: "public",
+    access: "private",
     contentType,
     addRandomSuffix: false,
   });
