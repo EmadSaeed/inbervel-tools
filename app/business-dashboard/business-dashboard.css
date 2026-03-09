@@ -1,0 +1,525 @@
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&display=swap');
+
+/* ─── Variables ──────────────────────────────────────────────────────────────── */
+:root {
+  --bg-page: #0c2218;
+  --bg-card: #27293b;
+  --bg-logo: #1a4a30;
+  --green: #3b943e;
+  --green-light: #a6fe84;
+  --green-mid: #5be12c;
+  --bar-track: #d9d9d9;
+  --bar-pending: #7b7b7b;
+  --divider: rgba(255, 255, 255, 0.2);
+  --text-white: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.8);
+  --font: 'Figtree', sans-serif;
+}
+
+/* ─── Page ───────────────────────────────────────────────────────────────────── */
+.dashboard {
+  min-height: 100vh;
+  background: var(--bg-page);
+  padding: 24px;
+  font-family: var(--font);
+  box-sizing: border-box;
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────────── */
+.dashboard__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.dashboard__logo {
+  width: 120px;
+  height: 52px;
+  background: var(--bg-logo);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dashboard__logo-text {
+  color: var(--green-light);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.dashboard__title {
+  color: var(--green-light);
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  flex: 1;
+  text-align: center;
+}
+
+/* ─── Stat Cards Row ─────────────────────────────────────────────────────────── */
+.dashboard__stat-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 16px 12px 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.stat-card__title {
+  color: var(--text-white);
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 8px;
+  letter-spacing: 1px;
+}
+
+.stat-card__gauges {
+  display: flex;
+  gap: 4px;
+}
+
+.stat-card__gauge {
+  flex: 1;
+  text-align: center;
+}
+
+.stat-card__gauge-label {
+  color: var(--text-white);
+  font-size: 10px;
+  margin: 0 0 2px;
+  letter-spacing: 1px;
+}
+
+.stat-card__gauge-value {
+  color: var(--text-white);
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ─── Middle Row ─────────────────────────────────────────────────────────────── */
+.dashboard__middle-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.dashboard__middle-row > * {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ─── Productivity Panel ─────────────────────────────────────────────────────── */
+.productivity {
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+.productivity__title {
+  color: var(--text-white);
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 12px;
+  letter-spacing: 1px;
+}
+
+.productivity__bar-wrap {
+  position: relative;
+  height: 26px;
+}
+
+.productivity__bar-track {
+  position: absolute;
+  inset: 0;
+  background: var(--bar-track);
+  border-radius: 4px;
+}
+
+.productivity__bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: var(--green);
+  border-radius: 4px;
+}
+
+.productivity__bar-pct {
+  position: absolute;
+  top: 50%;
+  transform: translate(50%, -50%);
+  color: var(--text-white);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* ─── Cash Flow Panel ────────────────────────────────────────────────────────── */
+.cashflow {
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 16px 20px;
+  position: relative;
+}
+
+.cashflow__inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cashflow__badge {
+  background: var(--green);
+  border-radius: 4px;
+  padding: 4px 12px;
+  color: var(--text-white);
+  font-size: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cashflow__bar-wrap {
+  flex: 1;
+  position: relative;
+  height: 26px;
+  min-width: 80px;
+}
+
+.cashflow__bar-track {
+  position: absolute;
+  inset: 0;
+  background: var(--bar-track);
+  border-radius: 4px;
+}
+
+.cashflow__bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 55%;
+  background: var(--green);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+}
+
+.cashflow__amount {
+  color: var(--bg-page);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.cashflow__vat {
+  color: var(--text-white);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* ─── Bottom Row ─────────────────────────────────────────────────────────────── */
+.dashboard__bottom-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.dashboard__bottom-row > * {
+  flex: 1;
+  min-width: 0;
+}
+
+.dashboard__right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ─── 90 Days Actions Panel ──────────────────────────────────────────────────── */
+.ninety-days {
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+.ninety-days__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.ninety-days__heading {
+  color: var(--text-white);
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.ninety-days__col-label {
+  color: var(--text-white);
+  font-size: 11px;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.ninety-days__divider {
+  height: 1px;
+  background: var(--divider);
+  margin: 10px 0;
+}
+
+.ninety-days__row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.ninety-days__content {
+  flex: 1;
+}
+
+.ninety-days__category {
+  color: var(--text-white);
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 0 2px;
+}
+
+.ninety-days__desc {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.ninety-days__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  min-width: 110px;
+}
+
+.ninety-days__date {
+  color: var(--text-white);
+  font-size: 11px;
+  margin: 0;
+}
+
+.badge--completed {
+  background: var(--green);
+  border-radius: 4px;
+  padding: 2px 10px;
+  color: var(--text-white);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.btn--mark-complete {
+  background: var(--bar-pending);
+  border: none;
+  border-radius: 4px;
+  padding: 2px 10px;
+  color: var(--text-white);
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ─── Action Tools Panel ─────────────────────────────────────────────────────── */
+.action-tools {
+  background: var(--bg-card);
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+.action-tools__heading {
+  color: var(--text-white);
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  letter-spacing: 1px;
+}
+
+.action-tools__divider {
+  height: 1px;
+  background: var(--divider);
+  margin: 6px 0;
+}
+
+.action-tools__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-tools__emoji {
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.action-tools__label {
+  color: var(--text-white);
+  font-size: 12px;
+  margin: 0;
+  flex: 1;
+  line-height: 1.4;
+}
+
+.action-tools__btn {
+  border: none;
+  border-radius: 3px;
+  padding: 2px 10px;
+  color: var(--text-white);
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ─── Download Button ────────────────────────────────────────────────────────── */
+.btn--download-plan {
+  background: var(--green);
+  border: none;
+  border-radius: 8px;
+  padding: 18px 24px;
+  color: var(--text-white);
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────────── */
+
+/* Tablet: 2-column stat cards, stack middle/bottom rows */
+@media (max-width: 900px) {
+  .dashboard__stat-row {
+    flex-wrap: wrap;
+  }
+
+  .stat-card {
+    flex: 1 1 calc(50% - 8px);
+  }
+
+  .stat-card:last-child {
+    flex: 1 1 100%;
+  }
+
+  .dashboard__middle-row {
+    flex-direction: column;
+  }
+
+  .dashboard__middle-row > * {
+    flex: none;
+    width: 100%;
+  }
+
+  .dashboard__bottom-row {
+    flex-direction: column;
+  }
+
+  .dashboard__bottom-row > * {
+    flex: none;
+    width: 100%;
+  }
+}
+
+/* Mobile: single column everything */
+@media (max-width: 600px) {
+  .dashboard {
+    padding: 16px;
+  }
+
+  .dashboard__header {
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .dashboard__title {
+    font-size: 18px;
+    flex: none;
+    width: 100%;
+  }
+
+  .dashboard__stat-row {
+    flex-direction: column;
+  }
+
+  .stat-card {
+    flex: none;
+    width: 100%;
+  }
+
+  .stat-card__title {
+    font-size: 16px;
+  }
+
+  .productivity__title,
+  .action-tools__heading,
+  .ninety-days__heading {
+    font-size: 15px;
+  }
+
+  .cashflow__badge {
+    font-size: 15px;
+  }
+
+  .cashflow__vat {
+    width: 100%;
+    text-align: right;
+  }
+
+  .ninety-days__meta {
+    min-width: 90px;
+  }
+
+  .btn--download-plan {
+    font-size: 13px;
+    padding: 14px 16px;
+  }
+}
+
+/* ─── Footer ─────────────────────────────────────────────────────────────────── */
+.dashboard__footer {
+  margin-top: 24px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.133);
+}
+
+.dashboard__footer-text {
+  color: var(--text-white);
+  font-size: 12px;
+  margin: 0;
+}
+
+.btn--sign-out {
+  background: none;
+  border: none;
+  color: var(--green-light);
+  font-family: var(--font);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
