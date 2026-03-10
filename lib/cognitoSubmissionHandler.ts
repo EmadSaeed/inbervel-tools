@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { put } from "@vercel/blob";
+import { handleNext90DaysActions } from "@/lib/handleNext90DaysActions";
 
 // Safely parses an ISO date string into a Date object.
 // Returns null if the value is missing or not a valid date.
@@ -243,6 +244,11 @@ export async function cognitoSubmissionHandler(payload: any) {
       ...(position ? { position } : {}),
     },
   });
+
+  console.log("[cognitoHandler] formId received:", JSON.stringify(data.formId));
+  if (data.formId === "8") {
+    await handleNext90DaysActions(userEmail, payload);
+  }
 
   const latestDocumentUrl = getLatestDocumentUrl(payload);
   if (latestDocumentUrl) {

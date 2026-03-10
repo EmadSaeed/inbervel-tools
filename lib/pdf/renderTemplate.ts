@@ -35,6 +35,43 @@ async function fileToDataUri(relativePathFromRoot: string) {
   return `data:${mime};base64,${buf.toString("base64")}`;
 }
 
+function isHttpUrl(value: string): boolean {
+  return /^https?:\/\//i.test(value);
+}
+
+function isPrivateBlobUrl(value: string): boolean {
+  return /\.private\.blob\.vercel-storage\.com\//i.test(value);
+}
+
+async function remoteFileToDataUri(url: string): Promise<string> {
+  const trimmed = String(url || "").trim();
+  if (!trimmed || !isHttpUrl(trimmed)) return "";
+
+  const headers: Record<string, string> = {};
+  if (isPrivateBlobUrl(trimmed) && process.env.BLOB_READ_WRITE_TOKEN) {
+    headers.Authorization = `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`;
+  }
+
+  const res = await fetch(trimmed, {
+    headers: Object.keys(headers).length ? headers : undefined,
+    redirect: "follow",
+  });
+
+  if (!res.ok) {
+    console.warn("Logo fetch failed; rendering without logo image.", {
+      url: trimmed,
+      status: res.status,
+      statusText: res.statusText,
+    });
+    return "";
+  }
+
+  const contentType = res.headers.get("content-type") || "application/octet-stream";
+  const arrayBuffer = await res.arrayBuffer();
+  const body = Buffer.from(arrayBuffer);
+  return `data:${contentType};base64,${body.toString("base64")}`;
+}
+
 // Safely parses any value into a Date, returning null if the value is
 // missing, not a string, or does not represent a valid date.
 function parseToDate(value: unknown): Date | null {
@@ -181,8 +218,11 @@ export async function renderBusinessPlanTemplate(dto: any) {
     "business-plan.css",
   );
 
-  // Inline the risk chart so Puppeteer doesn't need filesystem/network access for it.
-  const riskChartDataUri = await fileToDataUri("public/risk-chart.png");
+  // Inline image assets so Puppeteer doesn't need external network access at render time.
+  const [riskChartDataUri, logoDataUri] = await Promise.all([
+    fileToDataUri("public/risk-chart.png"),
+    remoteFileToDataUri(String(dto?.logoUrl ?? "")),
+  ]);
 
   const [templateSource, css] = await Promise.all([
     fs.readFile(templatePath, "utf8"),
@@ -195,6 +235,7 @@ export async function renderBusinessPlanTemplate(dto: any) {
 
   return template({
     ...dto,
+    logoUrl: logoDataUri || dto?.logoUrl || "",
     css,            // injected into a <style> tag inside the template
     riskChartDataUri,
   });

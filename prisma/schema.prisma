@@ -12,6 +12,39 @@ enum UserRole {
     MEMBER
 }
 
+enum FinancialMetricType {
+    GROSS_PROFIT
+    REVENUE
+    NET_PROFIT
+}
+
+enum FinancialPeriod {
+    MONTH
+    YEAR
+}
+
+enum ActionCategory {
+    FINANCE
+    OPERATIONS
+    SALES_MARKETING
+    PEOPLE
+}
+
+enum ActionStatus {
+    PENDING
+    COMPLETED
+}
+
+enum ToolButtonType {
+    DOWNLOAD
+    COMPLETE
+}
+
+enum ToolStatus {
+    COMPLETE
+    INCOMPLETE
+}
+
 model CognitoSubmission {
     id           String  @id @default(cuid())
     formId       String
@@ -49,6 +82,12 @@ model User {
 
     accounts Account[]
     sessions Session[]
+
+    financialMetrics    FinancialMetric[]
+    cashFlows           CashFlow[]
+    productivityRecords ProductivityRecord[]
+    ninetyDayActions    NinetyDayAction[]
+    actionTools         ActionTool[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -90,7 +129,89 @@ model VerificationToken {
     @@unique([identifier, token])
 }
 
+model FinancialMetric {
+    id         String              @id @default(cuid())
+    userEmail  String
+    type       FinancialMetricType
+    period     FinancialPeriod
+    value      Decimal
+    currency   String              @default("GBP")
+    recordedAt DateTime
+
+    user User @relation(fields: [userEmail], references: [email])
+
+    @@index([userEmail])
+}
+
+model CashFlow {
+    id          String   @id @default(cuid())
+    userEmail   String
+    amount      Decimal
+    includesVat Boolean  @default(true)
+    recordedAt  DateTime
+
+    user User @relation(fields: [userEmail], references: [email])
+
+    @@index([userEmail])
+}
+
+model ProductivityRecord {
+    id         String   @id @default(cuid())
+    userEmail  String
+    percentage Float
+    recordedAt DateTime
+
+    user User @relation(fields: [userEmail], references: [email])
+
+    @@index([userEmail])
+}
+
+model NinetyDayAction {
+    id          String         @id @default(cuid())
+    userEmail   String
+    category    ActionCategory
+    description String
+    targetDate  DateTime
+    status      ActionStatus   @default(PENDING)
+    completedAt DateTime?
+    createdAt   DateTime       @default(now())
+    updatedAt   DateTime       @updatedAt
+
+    user User @relation(fields: [userEmail], references: [email])
+
+    @@index([userEmail])
+    @@unique([userEmail, category])
+}
+
+model ActionTool {
+    id         String         @id @default(cuid())
+    userEmail  String
+    label      String
+    status     ToolStatus     @default(INCOMPLETE)
+    buttonType ToolButtonType @default(COMPLETE)
+    fileUrl    String?
+    sortOrder  Int            @default(0)
+    createdAt  DateTime       @default(now())
+    updatedAt  DateTime       @updatedAt
+
+    user User @relation(fields: [userEmail], references: [email])
+
+    @@index([userEmail])
+}
+
 model AdminOtp {
+    id        String    @id @default(cuid())
+    email     String
+    codeHash  String
+    expiresAt DateTime
+    usedAt    DateTime?
+    createdAt DateTime  @default(now())
+
+    @@index([email])
+    @@index([expiresAt])
+}
+
+model MemberOtp {
     id        String    @id @default(cuid())
     email     String
     codeHash  String

@@ -25,6 +25,53 @@ export type BusinessPlanTemplateDto = {
   risks: any;       // form 39 — Risk Identification
 };
 
+function getString(v: unknown): string | null {
+  if (typeof v !== "string") return null;
+  const trimmed = v.trim();
+  return trimmed.length ? trimmed : null;
+}
+
+function isHttpUrl(v: string): boolean {
+  return /^https?:\/\//i.test(v);
+}
+
+function isBlobUrl(v: string): boolean {
+  return /(^https?:\/\/)?[^/]*vercel-storage\.com\//i.test(v);
+}
+
+function pickLogoUrlFromFinalPayload(finalPayload: unknown): string | null {
+  if (!finalPayload || typeof finalPayload !== "object") return null;
+  const payload = finalPayload as Record<string, unknown>;
+
+  // Prefer explicit blob URL fields if present in newer payload variants.
+  const directCandidates = [
+    payload.CompanyLogoBlobUrl,
+    payload.companyLogoBlobUrl,
+    payload.CompanyLogoUrl,
+    payload.companyLogoUrl,
+    payload.CompanyLogoBlob,
+    payload.companyLogoBlob,
+  ];
+
+  for (const value of directCandidates) {
+    const url = getString(value);
+    if (url && isHttpUrl(url)) return url;
+  }
+
+  // Fallback to file-upload array shape: CompanyLogo[0].File.
+  const companyLogo = payload.CompanyLogo;
+  const firstLogoFile =
+    Array.isArray(companyLogo) && companyLogo.length > 0
+      ? (companyLogo[0] as { File?: unknown })?.File
+      : null;
+  const uploadFile = getString(firstLogoFile);
+  if (!uploadFile) return null;
+
+  // Ignore Cognito temporary URLs when possible; prefer persisted blob URLs.
+  if (isBlobUrl(uploadFile)) return uploadFile;
+  return null;
+}
+
 // Fetches all required form submissions for a given client from the database
 // and assembles them into a single DTO ready to be passed into the PDF template.
 // Throws if any required form is missing — all 10 must be present.
@@ -57,14 +104,17 @@ export async function buildBusinessPlanTemplateDto(
     where: { email: userEmail },
     select: { companyLogoUrl: true },
   });
+  const finalPayload = getPayload("29");
+  const logoUrl =
+    pickLogoUrlFromFinalPayload(finalPayload) ?? member?.companyLogoUrl ?? "";
 
   return {
     planTitle: "Business Plan",
     css: "",           // filled in by renderTemplate.ts
-    logoUrl: member?.companyLogoUrl ?? "",
+    logoUrl,
     riskChartDataUri: "", // filled in by renderTemplate.ts
 
-    final: getPayload("29"),
+    final: finalPayload,
     offerings: getPayload("14"),
     advantage: getPayload("11"),
     sectors: getPayload("15"),

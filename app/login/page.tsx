@@ -1,30 +1,22 @@
 "use client";
 
-import "./login.css";
+import "@/app/admin/login/login.css";
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 
-export default function AdminLogin() {
-    // Controlled input state for the two form fields.
+export default function MemberLogin() {
     const [email, setEmail] = useState("");
     const [code, setCode] = useState("");
-
-    // `sent` gates the second step — the code input is hidden until a code has been sent.
     const [sent, setSent] = useState(false);
-
-    // Loading states for the two async actions to prevent double-submission.
     const [sending, setSending] = useState(false);
     const [verifying, setVerifying] = useState(false);
 
-    // Step 1: request a one-time code for the entered email address.
-    // The API returns { ok: true } for both known and unknown emails (to avoid
-    // leaking which addresses are registered), so we always advance to step 2.
     async function sendCode() {
         setSending(true);
         try {
-            const res = await fetch("/api/otp/request-code", {
+            const res = await fetch("/api/otp/member-request-code", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email }),
@@ -36,22 +28,19 @@ export default function AdminLogin() {
                 return;
             }
 
-            // Show the code input field now that the email has been sent.
             setSent(true);
         } finally {
             setSending(false);
         }
     }
 
-    // Step 2: submit the email + code to NextAuth's credentials provider.
-    // NextAuth validates the OTP on the server, then redirects to /admin on success.
     async function verify() {
         setVerifying(true);
         try {
-            await signIn("admin", {
+            await signIn("member", {
                 email,
                 code,
-                callbackUrl: "/admin",
+                callbackUrl: "/business-dashboard",
                 redirect: true,
             });
         } finally {
@@ -59,7 +48,6 @@ export default function AdminLogin() {
         }
     }
 
-    // Lightweight client-side validation to disable the buttons early.
     const emailOk = email.trim().length > 3;
     const codeOk = code.trim().length === 6;
 
@@ -71,12 +59,11 @@ export default function AdminLogin() {
                     <div className="loginTagline">Profit-Pilot Business Plan Generator</div>
                 </div>
                 <div className="loginCard">
-                    <h1 className="loginTitle">Admin Login</h1>
+                    <h1 className="loginTitle">Member Login</h1>
                     <p className="loginSub">
-                        Enter your assigned admin email to receive a 6-digit passcode.
+                        Enter the email address you used to submit your business plan form.
                     </p>
 
-                    {/* Step 1: Email + send passcode */}
                     <label className="fieldLabel">Email</label>
                     <div className="row">
                         <input
@@ -84,10 +71,9 @@ export default function AdminLogin() {
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Assigned admin email"
+                            placeholder="Your email address"
                             autoComplete="email"
                         />
-
                         <button
                             className="btn btnPrimary"
                             onClick={sendCode}
@@ -98,11 +84,9 @@ export default function AdminLogin() {
                         </button>
                     </div>
 
-                    {/* Step 2: Code + verify (only after sent) */}
                     {sent && (
                         <>
                             <div className="divider" />
-
                             <label className="fieldLabel">6-digit code</label>
                             <div className="row">
                                 <input
@@ -114,7 +98,6 @@ export default function AdminLogin() {
                                     pattern="[0-9]*"
                                     autoComplete="one-time-code"
                                 />
-
                                 <button
                                     className="btn btnDark"
                                     onClick={verify}
@@ -124,10 +107,8 @@ export default function AdminLogin() {
                                     {verifying ? "Verifying..." : "Verify & sign in"}
                                 </button>
                             </div>
-
                             <p className="hint">
-                                Didn’t receive a code? Check spam/junk, then click “Send passcode”
-                                again.
+                                Didn&apos;t receive a code? Check spam/junk, then click &quot;Send passcode&quot; again.
                             </p>
                         </>
                     )}
