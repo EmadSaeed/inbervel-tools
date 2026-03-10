@@ -186,6 +186,7 @@ function CashFlowPanel() {
 function NinetyDaysPanel({ actions }: { actions: NinetyDayActionRow[] }) {
   const router = useRouter();
   const [completing, setCompleting] = useState<Set<string>>(new Set());
+  const [resetting, setResetting] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const onFocus = () => router.refresh();
@@ -204,6 +205,21 @@ function NinetyDaysPanel({ actions }: { actions: NinetyDayActionRow[] }) {
       router.refresh();
     } else {
       setCompleting((prev) => { const s = new Set(prev); s.delete(id); return s; });
+    }
+  }
+
+  async function resetAction(id: string) {
+    setResetting((prev) => new Set(prev).add(id));
+    const res = await fetch("/api/business-dashboard/reset-action", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    if (res.ok) {
+      setCompleting((prev) => { const s = new Set(prev); s.delete(id); return s; });
+      router.refresh();
+    } else {
+      setResetting((prev) => { const s = new Set(prev); s.delete(id); return s; });
     }
   }
 
@@ -235,7 +251,14 @@ function NinetyDaysPanel({ actions }: { actions: NinetyDayActionRow[] }) {
             <div className="ninety-days__meta">
               <p className="ninety-days__date">{formatDate(row.targetDate)}</p>
               {row.status === "COMPLETED" || completing.has(row.id) ? (
-                <span className="badge--completed">Completed</span>
+                <button
+                  className="badge--completed"
+                  onClick={() => resetAction(row.id)}
+                  disabled={resetting.has(row.id)}
+                  title="Click to mark as pending"
+                >
+                  {resetting.has(row.id) ? "Resetting..." : "Completed"}
+                </button>
               ) : (
                 <button className="btn--mark-complete" onClick={() => markComplete(row.id)}>
                   Mark As Completed
