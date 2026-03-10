@@ -240,6 +240,7 @@ function NinetyDaysPanel({ actions }: { actions: NinetyDayActionRow[] }) {
       <div className="ninety-days__header">
         <p className="ninety-days__heading">90 DAYS ACTIONS</p>
         <p className="ninety-days__col-label">TARGET DATE</p>
+        <div />
       </div>
       {actions.map((row, i) => (
         <div key={row.id}>
@@ -249,8 +250,8 @@ function NinetyDaysPanel({ actions }: { actions: NinetyDayActionRow[] }) {
               <p className="ninety-days__category">{CATEGORY_LABEL[row.category]}</p>
               <p className="ninety-days__desc">{row.description}</p>
             </div>
-            <div className="ninety-days__meta">
-              <p className="ninety-days__date">{formatDate(row.targetDate)}</p>
+            <p className="ninety-days__date">{formatDate(row.targetDate)}</p>
+            <div className="ninety-days__action">
               {row.status === "COMPLETED" || completing.has(row.id) ? (
                 <button
                   className="badge--completed"
