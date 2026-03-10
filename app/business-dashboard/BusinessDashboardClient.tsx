@@ -217,6 +217,7 @@ function NinetyDaysPanel({ actions }: { actions: NinetyDayActionRow[] }) {
     });
     if (res.ok) {
       setCompleting((prev) => { const s = new Set(prev); s.delete(id); return s; });
+      setResetting((prev) => { const s = new Set(prev); s.delete(id); return s; });
       router.refresh();
     } else {
       setResetting((prev) => { const s = new Set(prev); s.delete(id); return s; });
