@@ -110,14 +110,10 @@
 
 /* ─── Middle Row ─────────────────────────────────────────────────────────────── */
 .dashboard__middle-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
   margin-bottom: 16px;
-}
-
-.dashboard__middle-row > * {
-  flex: 1;
-  min-width: 0;
 }
 
 /* ─── Productivity Panel ─────────────────────────────────────────────────────── */
@@ -231,14 +227,10 @@
 
 /* ─── Bottom Row ─────────────────────────────────────────────────────────────── */
 .dashboard__bottom-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
-  align-items: flex-start;
-}
-
-.dashboard__bottom-row > * {
-  flex: 1;
-  min-width: 0;
+  align-items: start;
 }
 
 .dashboard__right-col {
@@ -276,6 +268,7 @@
   margin: 0;
   letter-spacing: 1px;
   text-align: center;
+  font-weight: 800;
 }
 
 .ninety-days__divider {
@@ -305,15 +298,19 @@
 .ninety-days__desc {
   color: var(--text-muted);
   font-size: 12px;
+  font-weight: 600;
   margin: 0;
   line-height: 1.4;
+  color: var(--text-white);
 }
 
 .ninety-days__date {
   color: var(--text-white);
   font-size: 11px;
+  font-weight: 800;
   margin: 0;
   text-align: center;
+  color: var(--text-white);
 }
 
 .ninety-days__action {
@@ -439,21 +436,11 @@
   }
 
   .dashboard__middle-row {
-    flex-direction: column;
-  }
-
-  .dashboard__middle-row > * {
-    flex: none;
-    width: 100%;
+    grid-template-columns: 1fr;
   }
 
   .dashboard__bottom-row {
-    flex-direction: column;
-  }
-
-  .dashboard__bottom-row > * {
-    flex: none;
-    width: 100%;
+    grid-template-columns: 1fr;
   }
 }
 
