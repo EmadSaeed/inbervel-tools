@@ -39,14 +39,22 @@ export async function handleNext90DaysActions(userEmail: string, payload: any) {
 
     const existing = await prisma.ninetyDayAction.findFirst({
       where: { userEmail, category },
-      select: { id: true },
+      select: { id: true, description: true, targetDate: true },
     });
 
     if (existing) {
-      console.log(`[90DayActions] ${category}: updating existing row id=${existing.id}`);
+      const descriptionChanged = existing.description !== description;
+      const targetDateChanged = existing.targetDate.getTime() !== targetDate.getTime();
+      const hasChanged = descriptionChanged || targetDateChanged;
+
+      console.log(`[90DayActions] ${category}: updating existing row id=${existing.id}, hasChanged=${hasChanged}`);
       await prisma.ninetyDayAction.update({
         where: { id: existing.id },
-        data: { description, targetDate },
+        data: {
+          description,
+          targetDate,
+          ...(hasChanged ? { status: "PENDING", completedAt: null } : {}),
+        },
       });
     } else {
       console.log(`[90DayActions] ${category}: creating new row`);
