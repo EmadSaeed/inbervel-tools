@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import GaugeComponent from "react-gauge-component";
 import "./business-dashboard.css";
 import type { ActionCategory, ActionStatus } from "@prisma/client";
@@ -183,18 +184,26 @@ function CashFlowPanel() {
 }
 
 function NinetyDaysPanel({ actions }: { actions: NinetyDayActionRow[] }) {
-  const [statuses, setStatuses] = useState<Record<string, ActionStatus>>(
-    () => Object.fromEntries(actions.map((a) => [a.id, a.status]))
-  );
+  const router = useRouter();
+  const [completing, setCompleting] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const onFocus = () => router.refresh();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [router]);
 
   async function markComplete(id: string) {
+    setCompleting((prev) => new Set(prev).add(id));
     const res = await fetch("/api/business-dashboard/complete-action", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
     });
     if (res.ok) {
-      setStatuses((prev) => ({ ...prev, [id]: "COMPLETED" }));
+      router.refresh();
+    } else {
+      setCompleting((prev) => { const s = new Set(prev); s.delete(id); return s; });
     }
   }
 
@@ -225,7 +234,7 @@ function NinetyDaysPanel({ actions }: { actions: NinetyDayActionRow[] }) {
             </div>
             <div className="ninety-days__meta">
               <p className="ninety-days__date">{formatDate(row.targetDate)}</p>
-              {statuses[row.id] === "COMPLETED" ? (
+              {row.status === "COMPLETED" || completing.has(row.id) ? (
                 <span className="badge--completed">Completed</span>
               ) : (
                 <button className="btn--mark-complete" onClick={() => markComplete(row.id)}>
