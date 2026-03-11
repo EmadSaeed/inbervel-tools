@@ -405,6 +405,8 @@
 
 /* ─── Download Button ────────────────────────────────────────────────────────── */
 .btn--download-plan {
+  display: block;
+  box-sizing: border-box;
   background: var(--green);
   border: none;
   border-radius: 6px;
