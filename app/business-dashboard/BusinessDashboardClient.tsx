@@ -295,7 +295,7 @@ function ActionToolsPanel({ tools }: { tools: ActionToolItem[] }) {
                   </button>
                   <button
                     className="action-tools__btn"
-                    style={{ background: "#3B943E" }}
+                    style={{ background: "#3B943E", paddingRight: "4px" }}
                     onClick={() => tool.formUrl && window.open(tool.formUrl, "_blank")}
                     disabled={!tool.formUrl}
                   >
