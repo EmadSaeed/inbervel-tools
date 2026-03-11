@@ -266,7 +266,7 @@ function NinetyDaysPanel({ actions }: { actions: NinetyDayActionRow[] }) {
 function ActionToolsPanel({ tools }: { tools: ActionToolItem[] }) {
   function handleToolClick(tool: ActionToolItem) {
     if (tool.status === "COMPLETE" && tool.fileUrl) {
-      window.location.href = `/api/business-dashboard/download-tool-pdf?formId=${encodeURIComponent(tool.formId)}`;
+      window.open(tool.fileUrl, "_blank");
     } else if (tool.formUrl) {
       window.open(tool.formUrl, "_blank");
     }

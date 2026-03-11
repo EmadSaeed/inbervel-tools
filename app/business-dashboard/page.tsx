@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { getDownloadUrl } from "@vercel/blob";
 import BusinessDashboardClient from "./BusinessDashboardClient";
 
 export default async function BusinessDashboardPage() {
@@ -10,7 +11,7 @@ export default async function BusinessDashboardPage() {
 
   const userEmail = session.user.email;
 
-  const [actions, actionToolRows, forms] = await Promise.all([
+  const [actions, actionToolRows, forms, submissions] = await Promise.all([
     prisma.ninetyDayAction.findMany({
       where: { userEmail },
       orderBy: { createdAt: "asc" },
@@ -24,10 +25,22 @@ export default async function BusinessDashboardPage() {
     }),
     prisma.actionTool.findMany({
       where: { userEmail, formId: { not: null } },
-      select: { formId: true, status: true, fileUrl: true },
+      select: { formId: true, status: true },
     }),
     prisma.cognitoForm.findMany({ orderBy: { sortOrder: "asc" } }),
+    prisma.cognitoSubmission.findMany({
+      where: { userEmail },
+      select: { formId: true, outputPdfUrl: true },
+    }),
   ]);
+
+  // Build a map of formId -> signed download URL from CognitoSubmission.outputPdfUrl
+  const pdfUrlByFormId = new Map<string, string>();
+  for (const sub of submissions) {
+    if (sub.outputPdfUrl) {
+      pdfUrlByFormId.set(sub.formId, getDownloadUrl(sub.outputPdfUrl));
+    }
+  }
 
   // Merge CognitoForm definitions with any submitted ActionTool rows.
   const toolByFormId = new Map(actionToolRows.map((r) => [r.formId, r]));
@@ -39,7 +52,7 @@ export default async function BusinessDashboardPage() {
       formUrl: form.formUrl,
       sortOrder: form.sortOrder,
       status: (row?.status ?? "INCOMPLETE") as "COMPLETE" | "INCOMPLETE",
-      fileUrl: row?.fileUrl ?? null,
+      fileUrl: pdfUrlByFormId.get(form.formId) ?? null,
     };
   });
 
