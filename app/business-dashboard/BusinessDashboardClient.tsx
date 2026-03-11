@@ -248,7 +248,7 @@ function NinetyDaysPanel({ actions }: { actions: NinetyDayActionRow[] }) {
                   disabled={resetting.has(row.id)}
                   title="Click to mark as pending"
                 >
-                  {resetting.has(row.id) ? "Resetting..." : "Completed"}
+                  {resetting.has(row.id) ? "Resetting..." : "✓ Completed"}
                 </button>
               ) : (
                 <button className="btn--mark-complete" onClick={() => markComplete(row.id)}>
