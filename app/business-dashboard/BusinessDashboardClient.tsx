@@ -288,7 +288,7 @@ function ActionToolsPanel({ tools }: { tools: ActionToolItem[] }) {
                 <>
                   {tool.fileUrl && (
                     <button
-                      className="action-tools__btn"
+                      className="action-tools__btn action-tools__btn--download"
                       style={{ background: "#3B943E" }}
                       onClick={() => handleToolClick(tool)}
                     >

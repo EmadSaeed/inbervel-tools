@@ -403,6 +403,10 @@
   text-align: center;
 }
 
+.action-tools__btn--download:hover {
+  background: var(--green-light) !important;
+}
+
 /* ─── Download Button ────────────────────────────────────────────────────────── */
 .btn--download-plan {
   display: block;
