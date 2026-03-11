@@ -415,8 +415,8 @@
   font-weight: 700;
   letter-spacing: 1px;
   cursor: pointer;
-  width: 100%;
-  text-align: center;
+  width: fit-content;
+  align-self: center;
 }
 
 /* ─── Responsive ─────────────────────────────────────────────────────────────── */
