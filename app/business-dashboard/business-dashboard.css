@@ -407,11 +407,11 @@
 .btn--download-plan {
   background: var(--green);
   border: none;
-  border-radius: 8px;
-  padding: 18px 24px;
+  border-radius: 6px;
+  padding: 10px 20px;
   color: var(--text-white);
   font-family: var(--font);
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 1px;
   cursor: pointer;
@@ -493,8 +493,8 @@
   }
 
   .btn--download-plan {
-    font-size: 13px;
-    padding: 14px 16px;
+    font-size: 12px;
+    padding: 8px 16px;
   }
 }
 

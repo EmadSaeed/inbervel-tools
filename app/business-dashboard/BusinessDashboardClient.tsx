@@ -394,6 +394,7 @@ export default function BusinessDashboardClient({
           onClick={handleDownloadPlan}
           disabled={!readyToGenerate || generatingPlan}
           style={!readyToGenerate ? { opacity: 0.45, cursor: "not-allowed" } : undefined}
+          title={!readyToGenerate ? "PDF generation is disabled until completing the action tools" : undefined}
         >
           {generatingPlan ? "Generating…" : "DOWNLOAD YOUR BUSINESS PLAN"}
         </button>
