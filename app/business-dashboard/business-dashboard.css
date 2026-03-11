@@ -384,6 +384,13 @@
   line-height: 1.4;
 }
 
+.action-tools__btn-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .action-tools__btn {
   border: none;
   border-radius: 3px;

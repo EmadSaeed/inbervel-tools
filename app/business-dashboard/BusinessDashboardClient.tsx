@@ -284,34 +284,36 @@ function ActionToolsPanel({ tools }: { tools: ActionToolItem[] }) {
                 {tool.status === "COMPLETE" ? "✅" : "❌"}
               </span>
               <p className="action-tools__label">{tool.title}</p>
-              {tool.status === "COMPLETE" ? (
-                <>
+              <div className="action-tools__btn-group">
+                {tool.status === "COMPLETE" ? (
+                  <>
+                    <button
+                      className="action-tools__btn"
+                      style={{ background: "#3B943E" }}
+                      onClick={() => handleToolClick(tool)}
+                    >
+                      Report Download
+                    </button>
+                    <button
+                      className="action-tools__btn"
+                      style={{ background: "#3B943E" }}
+                      onClick={() => tool.formUrl && window.open(tool.formUrl, "_blank")}
+                      disabled={!tool.formUrl}
+                    >
+                      Update
+                    </button>
+                  </>
+                ) : (
                   <button
                     className="action-tools__btn"
-                    style={{ background: "#3B943E" }}
+                    style={{ background: "#FF0000", gridColumn: "1 / -1" }}
                     onClick={() => handleToolClick(tool)}
-                  >
-                    Report Download
-                  </button>
-                  <button
-                    className="action-tools__btn"
-                    style={{ background: "#3B943E" }}
-                    onClick={() => tool.formUrl && window.open(tool.formUrl, "_blank")}
                     disabled={!tool.formUrl}
                   >
-                    Update
+                    Complete
                   </button>
-                </>
-              ) : (
-                <button
-                  className="action-tools__btn"
-                  style={{ background: "#FF0000" }}
-                  onClick={() => handleToolClick(tool)}
-                  disabled={!tool.formUrl}
-                >
-                  Complete
-                </button>
-              )}
+                )}
+              </div>
             </div>
           </div>
         ))}
