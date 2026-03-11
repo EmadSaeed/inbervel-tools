@@ -272,7 +272,7 @@
 }
 
 .ninety-days__divider {
-  height: 1px;
+  height: 2px;
   background: var(--divider);
   margin: 10px 0;
 }
@@ -367,7 +367,7 @@
 }
 
 .action-tools__divider {
-  height: 1px;
+  height: 2px;
   background: var(--divider);
   margin: 6px 0;
 }
