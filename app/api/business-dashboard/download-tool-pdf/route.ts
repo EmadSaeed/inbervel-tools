@@ -26,24 +26,24 @@ export async function GET(req: NextRequest) {
 
   const userEmail = session.user.email.toLowerCase().trim();
 
-  const tool = await prisma.actionTool.findUnique({
-    where: { userEmail_formId: { userEmail, formId } },
-    select: { fileUrl: true, label: true },
+  const submission = await prisma.cognitoSubmission.findUnique({
+    where: { formId_userEmail: { formId, userEmail } },
+    select: { outputPdfUrl: true, formTitle: true },
   });
 
-  if (!tool?.fileUrl) {
+  if (!submission?.outputPdfUrl) {
     return new Response("Not found", { status: 404 });
   }
 
   // Generate a time-limited signed download URL for the private blob.
-  const downloadUrl = await getDownloadUrl(tool.fileUrl);
+  const downloadUrl = await getDownloadUrl(submission.outputPdfUrl);
 
   const blobRes = await fetch(downloadUrl);
   if (!blobRes.ok) {
     return new Response("Failed to fetch PDF", { status: 502 });
   }
 
-  const safeLabel = (tool.label ?? "tool")
+  const safeLabel = (submission.formTitle ?? "tool")
     .replace(/[\/\\?%*:|"<>]/g, "-")
     .replace(/\s+/g, " ")
     .trim();
