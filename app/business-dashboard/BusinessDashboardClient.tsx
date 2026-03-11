@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import GaugeComponent from "react-gauge-component";
@@ -275,47 +275,45 @@ function ActionToolsPanel({ tools }: { tools: ActionToolItem[] }) {
   return (
     <div className="action-tools">
       <p className="action-tools__heading">ACTION TOOLS</p>
-      <div>
+      <div className="action-tools__rows">
         {tools.map((tool, i) => (
-          <div key={tool.formId}>
+          <Fragment key={tool.formId}>
             {i > 0 && <div className="action-tools__divider" />}
-            <div className="action-tools__row">
-              <span className="action-tools__emoji">
-                {tool.status === "COMPLETE" ? "✅" : "❌"}
-              </span>
-              <p className="action-tools__label">{tool.title}</p>
-              <div className="action-tools__btn-group">
-                {tool.status === "COMPLETE" ? (
-                  <>
-                    <button
-                      className="action-tools__btn"
-                      style={{ background: "#3B943E" }}
-                      onClick={() => handleToolClick(tool)}
-                    >
-                      Report Download
-                    </button>
-                    <button
-                      className="action-tools__btn"
-                      style={{ background: "#3B943E" }}
-                      onClick={() => tool.formUrl && window.open(tool.formUrl, "_blank")}
-                      disabled={!tool.formUrl}
-                    >
-                      Update
-                    </button>
-                  </>
-                ) : (
+            <span className="action-tools__emoji">
+              {tool.status === "COMPLETE" ? "✅" : "❌"}
+            </span>
+            <p className="action-tools__label">{tool.title}</p>
+            <div className="action-tools__btn-group">
+              {tool.status === "COMPLETE" ? (
+                <>
                   <button
                     className="action-tools__btn"
-                    style={{ background: "#FF0000", gridColumn: "1 / -1" }}
+                    style={{ background: "#3B943E" }}
                     onClick={() => handleToolClick(tool)}
+                  >
+                    Report Download
+                  </button>
+                  <button
+                    className="action-tools__btn"
+                    style={{ background: "#3B943E" }}
+                    onClick={() => tool.formUrl && window.open(tool.formUrl, "_blank")}
                     disabled={!tool.formUrl}
                   >
-                    Complete
+                    Update
                   </button>
-                )}
-              </div>
+                </>
+              ) : (
+                <button
+                  className="action-tools__btn"
+                  style={{ background: "#FF0000", gridColumn: "1 / -1" }}
+                  onClick={() => handleToolClick(tool)}
+                  disabled={!tool.formUrl}
+                >
+                  Complete
+                </button>
+              )}
             </div>
-          </div>
+          </Fragment>
         ))}
       </div>
     </div>

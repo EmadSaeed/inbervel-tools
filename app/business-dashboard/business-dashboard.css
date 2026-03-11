@@ -359,28 +359,28 @@
   letter-spacing: 1px;
 }
 
+.action-tools__rows {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  column-gap: 8px;
+  align-items: center;
+}
+
 .action-tools__divider {
+  grid-column: 1 / -1;
   height: 2px;
   background: var(--divider);
   margin: 6px 0;
 }
 
-.action-tools__row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .action-tools__emoji {
   font-size: 12px;
-  flex-shrink: 0;
 }
 
 .action-tools__label {
   color: var(--text-white);
   font-size: 12px;
   margin: 0;
-  flex: 1;
   line-height: 1.4;
 }
 
@@ -388,7 +388,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  flex-shrink: 0;
 }
 
 .action-tools__btn {
