@@ -250,7 +250,14 @@ export async function cognitoSubmissionHandler(payload: any) {
     await handleNext90DaysActions(userEmail, payload);
   }
 
+  // Look up whether this form is a known business-plan form so we can upsert ActionTool.
+  const knownForm = await prisma.cognitoForm.findUnique({
+    where: { formId: data.formId },
+  });
+
   const latestDocumentUrl = getLatestDocumentUrl(payload);
+  let pdfBlobUrl: string | null = null;
+
   if (latestDocumentUrl) {
     try {
       const nsEmail = safeKeyPart(userEmail) || "unknown-email";
@@ -260,7 +267,7 @@ export async function cognitoSubmissionHandler(payload: any) {
         `form-${data.formId}`;
       const pathname = `user-uploads/${nsEmail}/${nsFormId}/${fileTitle}.pdf`;
 
-      const outputPdfUrl = await uploadRemoteFileToBlob({
+      pdfBlobUrl = await uploadRemoteFileToBlob({
         fileUrl: latestDocumentUrl,
         pathname,
         contentTypeHint: "application/pdf",
@@ -270,10 +277,40 @@ export async function cognitoSubmissionHandler(payload: any) {
         where: {
           formId_userEmail: { formId: data.formId, userEmail },
         },
-        data: { outputPdfUrl },
+        data: { outputPdfUrl: pdfBlobUrl },
       });
     } catch (error) {
       console.warn("Document upload failed; submission row kept.", {
+        formId: data.formId,
+        userEmail,
+        error,
+      });
+    }
+  }
+
+  // Upsert ActionTool for any known business-plan form submission.
+  if (knownForm) {
+    try {
+      await prisma.actionTool.upsert({
+        where: { userEmail_formId: { userEmail, formId: data.formId } },
+        create: {
+          userEmail,
+          formId: data.formId,
+          label: knownForm.title,
+          status: "COMPLETE",
+          buttonType: pdfBlobUrl ? "DOWNLOAD" : "COMPLETE",
+          fileUrl: pdfBlobUrl,
+          sortOrder: knownForm.sortOrder,
+        },
+        update: {
+          status: "COMPLETE",
+          buttonType: pdfBlobUrl ? "DOWNLOAD" : "COMPLETE",
+          fileUrl: pdfBlobUrl,
+          label: knownForm.title,
+        },
+      });
+    } catch (error) {
+      console.warn("ActionTool upsert failed; continuing.", {
         formId: data.formId,
         userEmail,
         error,

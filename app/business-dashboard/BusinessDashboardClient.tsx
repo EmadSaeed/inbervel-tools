@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import GaugeComponent from "react-gauge-component";
 import "./business-dashboard.css";
 import type { ActionCategory, ActionStatus } from "@prisma/client";
@@ -16,11 +17,13 @@ interface StatCardProps {
   yearLabel: string;
 }
 
-interface ActionRow {
-  emoji: "✅" | "❌";
-  label: string;
-  buttonLabel: string;
-  buttonColor: string;
+export interface ActionToolItem {
+  formId: string;
+  title: string;
+  formUrl: string;
+  sortOrder: number;
+  status: "COMPLETE" | "INCOMPLETE";
+  fileUrl: string | null;
 }
 
 export interface NinetyDayActionRow {
@@ -47,20 +50,6 @@ function formatDate(date: Date): string {
   const yyyy = d.getFullYear();
   return `${dd}-${mm}-${yyyy}`;
 }
-
-// ─── Static data ──────────────────────────────────────────────────────────────
-
-const ACTION_TOOLS: ActionRow[] = [
-  { emoji: "✅", label: "Tool to prioritise your offerings", buttonLabel: "Download", buttonColor: "#3B943E" },
-  { emoji: "❌", label: "How to Spotlight Your Objectives", buttonLabel: "Complete", buttonColor: "#FF0000" },
-  { emoji: "❌", label: "How to create an Advantage", buttonLabel: "Complete", buttonColor: "#FF0000" },
-  { emoji: "✅", label: "Tool to Prioritise and Target Clients for maximum ROI", buttonLabel: "Download", buttonColor: "#3B943E" },
-  { emoji: "✅", label: "Tool to determine your most effective route to market", buttonLabel: "Download", buttonColor: "#3B943E" },
-  { emoji: "✅", label: "Business SWOT Analysis Questionnaire", buttonLabel: "Download", buttonColor: "#3B943E" },
-  { emoji: "✅", label: "Questionnaire to Calculate Labour Rates Card", buttonLabel: "Download", buttonColor: "#3B943E" },
-  { emoji: "✅", label: "How to Forecast Your Financial Performance", buttonLabel: "Complete", buttonColor: "#3B943E" },
-  { emoji: "❌", label: "Final Step - Reflections and Summary", buttonLabel: "Complete", buttonColor: "#FF0000" },
-];
 
 // ─── Gauge config ─────────────────────────────────────────────────────────────
 
@@ -274,22 +263,34 @@ function NinetyDaysPanel({ actions }: { actions: NinetyDayActionRow[] }) {
   );
 }
 
-function ActionToolsPanel() {
+function ActionToolsPanel({ tools }: { tools: ActionToolItem[] }) {
+  function handleToolClick(tool: ActionToolItem) {
+    if (tool.status === "COMPLETE" && tool.fileUrl) {
+      window.location.href = `/api/business-dashboard/download-tool-pdf?formId=${encodeURIComponent(tool.formId)}`;
+    } else if (tool.formUrl) {
+      window.open(tool.formUrl, "_blank");
+    }
+  }
+
   return (
     <div className="action-tools">
       <p className="action-tools__heading">ACTION TOOLS</p>
       <div>
-        {ACTION_TOOLS.map((tool, i) => (
-          <div key={i}>
+        {tools.map((tool, i) => (
+          <div key={tool.formId}>
             {i > 0 && <div className="action-tools__divider" />}
             <div className="action-tools__row">
-              <span className="action-tools__emoji">{tool.emoji}</span>
-              <p className="action-tools__label">{tool.label}</p>
+              <span className="action-tools__emoji">
+                {tool.status === "COMPLETE" ? "✅" : "❌"}
+              </span>
+              <p className="action-tools__label">{tool.title}</p>
               <button
                 className="action-tools__btn"
-                style={{ background: tool.buttonColor }}
+                style={{ background: tool.status === "COMPLETE" ? "#3B943E" : "#FF0000" }}
+                onClick={() => handleToolClick(tool)}
+                disabled={tool.status === "INCOMPLETE" && !tool.formUrl}
               >
-                {tool.buttonLabel}
+                {tool.status === "COMPLETE" ? "Download" : "Complete"}
               </button>
             </div>
           </div>
@@ -304,9 +305,41 @@ function ActionToolsPanel() {
 interface Props {
   ninetyDayActions: NinetyDayActionRow[];
   userEmail: string;
+  actionTools: ActionToolItem[];
+  readyToGenerate: boolean;
 }
 
-export default function BusinessDashboardClient({ ninetyDayActions, userEmail }: Props) {
+export default function BusinessDashboardClient({
+  ninetyDayActions,
+  userEmail,
+  actionTools,
+  readyToGenerate,
+}: Props) {
+  const [generatingPlan, setGeneratingPlan] = useState(false);
+
+  async function handleDownloadPlan() {
+    if (!readyToGenerate || generatingPlan) return;
+    setGeneratingPlan(true);
+    try {
+      const res = await fetch("/api/business-dashboard/generate-business-plan", {
+        method: "POST",
+      });
+      if (!res.ok) {
+        alert(await res.text());
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Business Plan.pdf";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 30_000);
+    } finally {
+      setGeneratingPlan(false);
+    }
+  }
+
   return (
     <main className="dashboard">
       {/* ── Header ── */}
@@ -334,8 +367,15 @@ export default function BusinessDashboardClient({ ninetyDayActions, userEmail }:
       <div className="dashboard__bottom-row">
         <NinetyDaysPanel actions={ninetyDayActions} />
         <div className="dashboard__right-col">
-          <ActionToolsPanel />
-          <button className="btn--download-plan">DOWNLOAD YOUR BUSINESS PLAN</button>
+          <ActionToolsPanel tools={actionTools} />
+          <button
+            className="btn--download-plan"
+            onClick={handleDownloadPlan}
+            disabled={!readyToGenerate || generatingPlan}
+            style={!readyToGenerate ? { opacity: 0.45, cursor: "not-allowed" } : undefined}
+          >
+            {generatingPlan ? "Generating…" : "DOWNLOAD YOUR BUSINESS PLAN"}
+          </button>
         </div>
       </div>
 
@@ -343,7 +383,7 @@ export default function BusinessDashboardClient({ ninetyDayActions, userEmail }:
       <div className="dashboard__footer">
         <p className="dashboard__footer-text">
           Logged in as {userEmail}{" "}
-          <button className="btn--sign-out">Sign out</button>
+          <button className="btn--sign-out" onClick={() => signOut({ callbackUrl: "/business-dashboard/login" })}>Sign out</button>
         </p>
       </div>
     </main>

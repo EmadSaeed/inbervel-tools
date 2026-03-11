@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { BUSINESS_PLAN_FORMS } from "@/lib/forms/requiredForms";
 
 // Shape of the data object passed into the Handlebars PDF template.
 // `css` and `riskChartDataUri` start empty and are filled in by the render step
@@ -81,7 +80,12 @@ export async function buildBusinessPlanTemplateDto(
   const userEmail = userEmailRaw.toLowerCase().trim();
   if (!userEmail) throw new Error("Missing email");
 
-  const requiredFormIds = BUSINESS_PLAN_FORMS.map((f) => f.formId);
+  // Load form definitions from DB so form IDs can be updated without redeploying.
+  const forms = await prisma.cognitoForm.findMany({ orderBy: { sortOrder: "asc" } });
+  if (!forms.length) throw new Error("CognitoForm table is empty — run seed first");
+
+  const formByKey = Object.fromEntries(forms.map((f) => [f.key, f.formId]));
+  const requiredFormIds = forms.map((f) => f.formId);
 
   // Fetch only the columns we need for PDF generation (avoids loading unnecessary data).
   const rows = await prisma.cognitoSubmission.findMany({
@@ -104,7 +108,7 @@ export async function buildBusinessPlanTemplateDto(
     where: { email: userEmail },
     select: { companyLogoUrl: true },
   });
-  const finalPayload = getPayload("29");
+  const finalPayload = getPayload(formByKey["final"]);
   const logoUrl =
     pickLogoUrlFromFinalPayload(finalPayload) ?? member?.companyLogoUrl ?? "";
 
@@ -115,14 +119,14 @@ export async function buildBusinessPlanTemplateDto(
     riskChartDataUri: "", // filled in by renderTemplate.ts
 
     final: finalPayload,
-    offerings: getPayload("14"),
-    advantage: getPayload("11"),
-    sectors: getPayload("15"),
-    market: getPayload("16"),
-    ratesCard: getPayload("23"),
-    swot: getPayload("12"),
-    objectives: getPayload("8"),
-    financial: getPayload("25"),
-    risks: getPayload("39"),
+    offerings: getPayload(formByKey["offerings"]),
+    advantage: getPayload(formByKey["advantage"]),
+    sectors: getPayload(formByKey["sectors"]),
+    market: getPayload(formByKey["market"]),
+    ratesCard: getPayload(formByKey["ratesCard"]),
+    swot: getPayload(formByKey["swot"]),
+    objectives: getPayload(formByKey["objectives"]),
+    financial: getPayload(formByKey["financial"]),
+    risks: getPayload(formByKey["risks"]),
   };
 }

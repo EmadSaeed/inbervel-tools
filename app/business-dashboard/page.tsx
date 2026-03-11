@@ -8,17 +8,49 @@ export default async function BusinessDashboardPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) redirect("/business-dashboard/login");
 
-  const actions = await prisma.ninetyDayAction.findMany({
-    where: { userEmail: session.user.email },
-    orderBy: { createdAt: "asc" },
-    select: {
-      id: true,
-      category: true,
-      description: true,
-      targetDate: true,
-      status: true,
-    },
+  const userEmail = session.user.email;
+
+  const [actions, actionToolRows, forms] = await Promise.all([
+    prisma.ninetyDayAction.findMany({
+      where: { userEmail },
+      orderBy: { createdAt: "asc" },
+      select: {
+        id: true,
+        category: true,
+        description: true,
+        targetDate: true,
+        status: true,
+      },
+    }),
+    prisma.actionTool.findMany({
+      where: { userEmail, formId: { not: null } },
+      select: { formId: true, status: true, fileUrl: true },
+    }),
+    prisma.cognitoForm.findMany({ orderBy: { sortOrder: "asc" } }),
+  ]);
+
+  // Merge CognitoForm definitions with any submitted ActionTool rows.
+  const toolByFormId = new Map(actionToolRows.map((r) => [r.formId, r]));
+  const actionTools = forms.map((form) => {
+    const row = toolByFormId.get(form.formId);
+    return {
+      formId: form.formId,
+      title: form.title,
+      formUrl: form.formUrl,
+      sortOrder: form.sortOrder,
+      status: (row?.status ?? "INCOMPLETE") as "COMPLETE" | "INCOMPLETE",
+      fileUrl: row?.fileUrl ?? null,
+    };
   });
 
-  return <BusinessDashboardClient ninetyDayActions={actions} userEmail={session.user.email} />;
+  const readyToGenerate = actionTools.length > 0 && actionTools.every((t) => t.status === "COMPLETE");
+
+  return (
+    <BusinessDashboardClient
+      ninetyDayActions={actions}
+      userEmail={userEmail}
+      actionTools={actionTools}
+      readyToGenerate={readyToGenerate}
+    />
+  );
 }

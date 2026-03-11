@@ -8,7 +8,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
-import { BUSINESS_PLAN_FORMS } from "@/lib/forms/requiredForms";
 import { authOptions } from "@/auth";
 
 export const runtime = "nodejs";
@@ -32,7 +31,7 @@ export async function GET(req: NextRequest) {
 
   // Fetch all submissions for this client, newest first.
   // We select the payload column here only to extract companyName as a fallback.
-  const [submissions, member] = await Promise.all([
+  const [submissions, member, forms] = await Promise.all([
     prisma.cognitoSubmission.findMany({
       where: { userEmail: email },
       select: {
@@ -48,6 +47,7 @@ export async function GET(req: NextRequest) {
       where: { email },
       select: { companyName: true },
     }),
+    prisma.cognitoForm.findMany({ orderBy: { sortOrder: "asc" } }),
   ]);
 
   // Resolve the company name: prefer the dedicated column (populated by the webhook handler),
@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
   // Build a checklist row for every required form so the UI can show which
   // forms have been submitted (green tick) and which are still missing (red cross).
   const presentFormIds = new Set(submissions.map((s) => s.formId));
-  const required = BUSINESS_PLAN_FORMS.map((f) => ({
+  const required = forms.map((f) => ({
     formId: f.formId,
     key: f.key,
     title: f.title,

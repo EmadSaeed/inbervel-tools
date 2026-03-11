@@ -186,6 +186,7 @@ model NinetyDayAction {
 model ActionTool {
     id         String         @id @default(cuid())
     userEmail  String
+    formId     String?
     label      String
     status     ToolStatus     @default(INCOMPLETE)
     buttonType ToolButtonType @default(COMPLETE)
@@ -197,6 +198,18 @@ model ActionTool {
     user User @relation(fields: [userEmail], references: [email])
 
     @@index([userEmail])
+    @@unique([userEmail, formId])
+}
+
+model CognitoForm {
+    id        String   @id @default(cuid())
+    key       String   @unique
+    formId    String   @unique
+    title     String
+    formUrl   String
+    sortOrder Int      @default(0)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
 
 model AdminOtp {
