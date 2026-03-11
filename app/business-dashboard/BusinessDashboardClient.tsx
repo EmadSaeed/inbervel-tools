@@ -329,6 +329,8 @@ interface Props {
   userEmail: string;
   actionTools: ActionToolItem[];
   readyToGenerate: boolean;
+  companyName: string | null;
+  companyLogoUrl: string | null;
 }
 
 export default function BusinessDashboardClient({
@@ -336,6 +338,8 @@ export default function BusinessDashboardClient({
   userEmail,
   actionTools,
   readyToGenerate,
+  companyName,
+  companyLogoUrl,
 }: Props) {
   const [generatingPlan, setGeneratingPlan] = useState(false);
 
@@ -367,9 +371,15 @@ export default function BusinessDashboardClient({
       {/* ── Header ── */}
       <div className="dashboard__header">
         <div className="dashboard__logo">
-          <span className="dashboard__logo-text">INBERVEL</span>
+          {companyLogoUrl ? (
+            <img src={companyLogoUrl} alt={companyName ?? "Company logo"} className="dashboard__logo-img" />
+          ) : (
+            <span className="dashboard__logo-text">INBERVEL</span>
+          )}
         </div>
-        <h1 className="dashboard__title">Business Dashboard</h1>
+        <h1 className="dashboard__title">
+          {companyName ? `${companyName} Business Dashboard` : "Business Dashboard"}
+        </h1>
       </div>
 
       {/* ── Stat Cards ── */}
@@ -394,7 +404,7 @@ export default function BusinessDashboardClient({
           onClick={handleDownloadPlan}
           disabled={!readyToGenerate || generatingPlan}
           style={!readyToGenerate ? { opacity: 0.45, cursor: "not-allowed" } : undefined}
-          title={!readyToGenerate ? "PDF generation is disabled until completing the action tools" : undefined}
+          title={!readyToGenerate ? "Business plan download is disabled until completing the action tools" : undefined}
         >
           {generatingPlan ? "⏳ Generating…" : "⬇ DOWNLOAD YOUR BUSINESS PLAN"}
         </button>

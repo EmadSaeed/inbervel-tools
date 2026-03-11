@@ -10,7 +10,7 @@ export default async function BusinessDashboardPage() {
 
   const userEmail = session.user.email as string;
 
-  const [actions, actionToolRows, forms, submissions] = await Promise.all([
+  const [actions, actionToolRows, forms, submissions, member] = await Promise.all([
     prisma.ninetyDayAction.findMany({
       where: { userEmail },
       orderBy: { createdAt: "asc" },
@@ -30,6 +30,10 @@ export default async function BusinessDashboardPage() {
     prisma.cognitoSubmission.findMany({
       where: { userEmail },
       select: { formId: true, outputPdfUrl: true },
+    }),
+    prisma.user.findUnique({
+      where: { email: userEmail },
+      select: { companyName: true, companyLogoUrl: true },
     }),
   ]);
 
@@ -59,6 +63,8 @@ export default async function BusinessDashboardPage() {
       userEmail={userEmail}
       actionTools={actionTools}
       readyToGenerate={readyToGenerate}
+      companyName={member?.companyName ?? null}
+      companyLogoUrl={member?.companyLogoUrl ?? null}
     />
   );
 }
