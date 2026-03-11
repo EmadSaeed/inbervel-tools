@@ -284,14 +284,34 @@ function ActionToolsPanel({ tools }: { tools: ActionToolItem[] }) {
                 {tool.status === "COMPLETE" ? "✅" : "❌"}
               </span>
               <p className="action-tools__label">{tool.title}</p>
-              <button
-                className="action-tools__btn"
-                style={{ background: tool.status === "COMPLETE" ? "#3B943E" : "#FF0000" }}
-                onClick={() => handleToolClick(tool)}
-                disabled={tool.status === "INCOMPLETE" && !tool.formUrl}
-              >
-                {tool.status === "COMPLETE" ? "Download" : "Complete"}
-              </button>
+              {tool.status === "COMPLETE" ? (
+                <>
+                  <button
+                    className="action-tools__btn"
+                    style={{ background: "#3B943E" }}
+                    onClick={() => handleToolClick(tool)}
+                  >
+                    Report Download
+                  </button>
+                  <button
+                    className="action-tools__btn"
+                    style={{ background: "#3B943E" }}
+                    onClick={() => tool.formUrl && window.open(tool.formUrl, "_blank")}
+                    disabled={!tool.formUrl}
+                  >
+                    Update
+                  </button>
+                </>
+              ) : (
+                <button
+                  className="action-tools__btn"
+                  style={{ background: "#FF0000" }}
+                  onClick={() => handleToolClick(tool)}
+                  disabled={!tool.formUrl}
+                >
+                  Complete
+                </button>
+              )}
             </div>
           </div>
         ))}
