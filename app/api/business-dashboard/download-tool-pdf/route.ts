@@ -7,7 +7,6 @@
 import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
-import { getDownloadUrl } from "@vercel/blob";
 import { authOptions } from "@/auth";
 
 export const runtime = "nodejs";
@@ -35,10 +34,10 @@ export async function GET(req: NextRequest) {
     return new Response("Not found", { status: 404 });
   }
 
-  // Generate a time-limited signed download URL for the private blob.
-  const downloadUrl = await getDownloadUrl(submission.outputPdfUrl);
-
-  const blobRes = await fetch(downloadUrl);
+  // Fetch the private blob server-to-server using the read/write token.
+  const blobRes = await fetch(submission.outputPdfUrl, {
+    headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` },
+  });
   if (!blobRes.ok) {
     return new Response("Failed to fetch PDF", { status: 502 });
   }
