@@ -8,7 +8,7 @@ export default async function BusinessDashboardPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) redirect("/business-dashboard/login");
 
-  const userEmail = session.user.email;
+  const userEmail = session.user.email as string;
 
   const [actions, actionToolRows, forms, submissions] = await Promise.all([
     prisma.ninetyDayAction.findMany({
