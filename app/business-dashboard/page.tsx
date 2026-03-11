@@ -57,6 +57,25 @@ export default async function BusinessDashboardPage() {
 
   const readyToGenerate = actionTools.length > 0 && actionTools.every((t) => t.status === "COMPLETE");
 
+  // Fetch the private company logo server-side and convert to a base64 data URL
+  // so the browser can display it without hitting the private blob directly.
+  let companyLogoDataUrl: string | null = null;
+  if (member?.companyLogoUrl) {
+    try {
+      const res = await fetch(member.companyLogoUrl, {
+        headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` },
+      });
+      if (res.ok) {
+        const buffer = await res.arrayBuffer();
+        const base64 = Buffer.from(buffer).toString("base64");
+        const contentType = res.headers.get("content-type") ?? "image/png";
+        companyLogoDataUrl = `data:${contentType};base64,${base64}`;
+      }
+    } catch {
+      // logo fetch failed — fall back to text logo
+    }
+  }
+
   return (
     <BusinessDashboardClient
       ninetyDayActions={actions}
@@ -64,7 +83,7 @@ export default async function BusinessDashboardPage() {
       actionTools={actionTools}
       readyToGenerate={readyToGenerate}
       companyName={member?.companyName ?? null}
-      companyLogoUrl={member?.companyLogoUrl ?? null}
+      companyLogoUrl={companyLogoDataUrl}
     />
   );
 }
