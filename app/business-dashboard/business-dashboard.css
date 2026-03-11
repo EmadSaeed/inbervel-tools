@@ -283,14 +283,14 @@
 
 .ninety-days__category {
   color: var(--green-light);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 900;
   margin: 0 0 2px;
 }
 
 .ninety-days__desc {
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   margin: 0;
   line-height: 1.4;
@@ -299,7 +299,7 @@
 
 .ninety-days__date {
   color: var(--text-white);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 800;
   margin: 0;
   text-align: center;
@@ -318,8 +318,8 @@
   padding: 6px 14px;
   color: var(--text-white);
   font-family: var(--font);
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 900;
   cursor: pointer;
   width: 100%;
   text-align: center;
@@ -337,8 +337,8 @@
   padding: 6px 14px;
   color: var(--text-white);
   font-family: var(--font);
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 900;
   cursor: pointer;
   width: 100%;
   text-align: center;
@@ -379,7 +379,7 @@
 
 .action-tools__label {
   color: var(--text-white);
-  font-size: 12px;
+  font-size: 14px;
   margin: 0;
   line-height: 1.4;
 }
@@ -392,14 +392,15 @@
 .action-tools__btn {
   flex: 1;
   border: none;
-  border-radius: 3px;
+  border-radius: 5px;
   padding: 2px 10px;
   color: var(--text-white);
   font-family: var(--font);
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 900;
   cursor: pointer;
   white-space: nowrap;
+  text-align: center;
 }
 
 /* ─── Download Button ────────────────────────────────────────────────────────── */
