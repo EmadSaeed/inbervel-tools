@@ -286,13 +286,15 @@ function ActionToolsPanel({ tools }: { tools: ActionToolItem[] }) {
             <div className="action-tools__btn-group">
               {tool.status === "COMPLETE" ? (
                 <>
-                  <button
-                    className="action-tools__btn"
-                    style={{ background: "#3B943E" }}
-                    onClick={() => handleToolClick(tool)}
-                  >
-                    ↓ Report Download
-                  </button>
+                  {tool.fileUrl && (
+                    <button
+                      className="action-tools__btn"
+                      style={{ background: "#3B943E" }}
+                      onClick={() => handleToolClick(tool)}
+                    >
+                      ↓ Report Download
+                    </button>
+                  )}
                   <button
                     className="action-tools__btn"
                     style={{ background: "#6B7280", paddingRight: "10px" }}

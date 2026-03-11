@@ -45,7 +45,7 @@ export default async function BusinessDashboardPage() {
       formUrl: form.formUrl,
       sortOrder: form.sortOrder,
       status: (row?.status ?? "INCOMPLETE") as "COMPLETE" | "INCOMPLETE",
-      fileUrl: submittedFormIds.has(form.formId)
+      fileUrl: submittedFormIds.has(form.formId) && form.key !== "final"
         ? `/api/business-dashboard/download-tool-pdf?formId=${encodeURIComponent(form.formId)}`
         : null,
     };
