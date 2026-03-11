@@ -33,13 +33,7 @@ export default async function BusinessDashboardPage() {
     }),
   ]);
 
-  // Build a map of formId -> outputPdfUrl from CognitoSubmission
-  const pdfUrlByFormId = new Map<string, string>();
-  for (const sub of submissions) {
-    if (sub.outputPdfUrl) {
-      pdfUrlByFormId.set(sub.formId, sub.outputPdfUrl);
-    }
-  }
+  const submittedFormIds = new Set(submissions.filter((s) => s.outputPdfUrl).map((s) => s.formId));
 
   // Merge CognitoForm definitions with any submitted ActionTool rows.
   const toolByFormId = new Map(actionToolRows.map((r) => [r.formId, r]));
@@ -51,7 +45,9 @@ export default async function BusinessDashboardPage() {
       formUrl: form.formUrl,
       sortOrder: form.sortOrder,
       status: (row?.status ?? "INCOMPLETE") as "COMPLETE" | "INCOMPLETE",
-      fileUrl: pdfUrlByFormId.get(form.formId) ?? null,
+      fileUrl: submittedFormIds.has(form.formId)
+        ? `/api/business-dashboard/download-tool-pdf?formId=${encodeURIComponent(form.formId)}`
+        : null,
     };
   });
 
