@@ -2,7 +2,6 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { getDownloadUrl } from "@vercel/blob";
 import BusinessDashboardClient from "./BusinessDashboardClient";
 
 export default async function BusinessDashboardPage() {
@@ -34,11 +33,11 @@ export default async function BusinessDashboardPage() {
     }),
   ]);
 
-  // Build a map of formId -> signed download URL from CognitoSubmission.outputPdfUrl
+  // Build a map of formId -> outputPdfUrl from CognitoSubmission
   const pdfUrlByFormId = new Map<string, string>();
   for (const sub of submissions) {
     if (sub.outputPdfUrl) {
-      pdfUrlByFormId.set(sub.formId, getDownloadUrl(sub.outputPdfUrl));
+      pdfUrlByFormId.set(sub.formId, sub.outputPdfUrl);
     }
   }
 
