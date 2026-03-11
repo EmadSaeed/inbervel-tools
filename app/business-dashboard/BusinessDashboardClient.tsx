@@ -291,15 +291,15 @@ function ActionToolsPanel({ tools }: { tools: ActionToolItem[] }) {
                     style={{ background: "#3B943E" }}
                     onClick={() => handleToolClick(tool)}
                   >
-                    Report Download
+                    ↓ Report Download
                   </button>
                   <button
                     className="action-tools__btn"
-                    style={{ background: "#3B943E", paddingRight: "4px" }}
+                    style={{ background: "#6B7280", paddingRight: "10px" }}
                     onClick={() => tool.formUrl && window.open(tool.formUrl, "_blank")}
                     disabled={!tool.formUrl}
                   >
-                    Update
+                    ↻ Update
                   </button>
                 </>
               ) : (
@@ -309,7 +309,7 @@ function ActionToolsPanel({ tools }: { tools: ActionToolItem[] }) {
                   onClick={() => handleToolClick(tool)}
                   disabled={!tool.formUrl}
                 >
-                  Complete
+                  ✎ Complete
                 </button>
               )}
             </div>
