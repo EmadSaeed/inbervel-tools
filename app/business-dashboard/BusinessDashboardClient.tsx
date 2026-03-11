@@ -366,17 +366,15 @@ export default function BusinessDashboardClient({
       {/* ── Bottom Row: 90 Days Actions | Action Tools + Download ── */}
       <div className="dashboard__bottom-row">
         <NinetyDaysPanel actions={ninetyDayActions} />
-        <div className="dashboard__right-col">
-          <ActionToolsPanel tools={actionTools} />
-          <button
-            className="btn--download-plan"
-            onClick={handleDownloadPlan}
-            disabled={!readyToGenerate || generatingPlan}
-            style={!readyToGenerate ? { opacity: 0.45, cursor: "not-allowed" } : undefined}
-          >
-            {generatingPlan ? "Generating…" : "DOWNLOAD YOUR BUSINESS PLAN"}
-          </button>
-        </div>
+        <ActionToolsPanel tools={actionTools} />
+        <button
+          className="btn--download-plan"
+          onClick={handleDownloadPlan}
+          disabled={!readyToGenerate || generatingPlan}
+          style={!readyToGenerate ? { opacity: 0.45, cursor: "not-allowed" } : undefined}
+        >
+          {generatingPlan ? "Generating…" : "DOWNLOAD YOUR BUSINESS PLAN"}
+        </button>
       </div>
 
       {/* ── Footer ── */}

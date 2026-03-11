@@ -227,13 +227,6 @@
 
 /* ─── Bottom Row ─────────────────────────────────────────────────────────────── */
 .dashboard__bottom-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  align-items: start;
-}
-
-.dashboard__right-col {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -439,9 +432,6 @@
     grid-template-columns: 1fr;
   }
 
-  .dashboard__bottom-row {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* Mobile: single column everything */
