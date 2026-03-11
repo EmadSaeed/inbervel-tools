@@ -385,12 +385,12 @@
 }
 
 .action-tools__btn-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: 8px;
 }
 
 .action-tools__btn {
+  flex: 1;
   border: none;
   border-radius: 3px;
   padding: 2px 10px;

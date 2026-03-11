@@ -305,7 +305,7 @@ function ActionToolsPanel({ tools }: { tools: ActionToolItem[] }) {
               ) : (
                 <button
                   className="action-tools__btn"
-                  style={{ background: "#FF0000", gridColumn: "1 / -1" }}
+                  style={{ background: "#FF0000" }}
                   onClick={() => handleToolClick(tool)}
                   disabled={!tool.formUrl}
                 >
