@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const logoUrl = `${process.env.NEXTAUTH_URL ?? ""}/Inbervel-logo.png`;
+    const logoUrl = "https://tools.inbervelcommunity.co.uk/Inbervel-logo.png";
 
     await transporter.sendMail({
       from: process.env.AUTH_EMAIL_FROM ?? process.env.EMAIL_FROM,
