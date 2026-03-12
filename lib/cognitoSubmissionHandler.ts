@@ -189,6 +189,47 @@ function parseName(nameValue: unknown): { firstName: string | null; lastName: st
   };
 }
 
+async function upsertFinancialMetric(
+  userEmail: string,
+  type: "GROSS_PROFIT" | "REVENUE" | "NET_PROFIT",
+  period: "MONTH" | "YEAR",
+  value: number | null,
+  percentage: number | null,
+) {
+  if (value === null) return;
+
+  const existing = await prisma.financialMetric.findFirst({
+    where: { userEmail, type, period },
+  });
+
+  const data = {
+    value,
+    ...(percentage !== null ? { percentage } : {}),
+    recordedAt: new Date(),
+  };
+
+  if (existing) {
+    await prisma.financialMetric.update({ where: { id: existing.id }, data });
+  } else {
+    await prisma.financialMetric.create({
+      data: { userEmail, type, period, value, percentage: percentage ?? undefined, recordedAt: new Date() },
+    });
+  }
+}
+
+async function handleFinancialMetrics(userEmail: string, payload: any) {
+  const pl = payload?.ProfitAndLossReport;
+  const ft = payload?.FinancialTargetsReport;
+
+  await Promise.all([
+    upsertFinancialMetric(userEmail, "GROSS_PROFIT", "MONTH", pl?.D30 ?? null, pl?.D31 ?? null),
+    upsertFinancialMetric(userEmail, "GROSS_PROFIT", "YEAR",  pl?.E30 ?? null, pl?.E31 ?? null),
+    upsertFinancialMetric(userEmail, "NET_PROFIT",   "MONTH", pl?.D57 ?? null, pl?.D58 ?? null),
+    upsertFinancialMetric(userEmail, "NET_PROFIT",   "YEAR",  pl?.E57 ?? null, pl?.E58 ?? null),
+    upsertFinancialMetric(userEmail, "REVENUE",      "MONTH", ft?.B8  ?? null, null),
+  ]);
+}
+
 async function handleCashFlow(userEmail: string, payload: any) {
   const report = payload?.FinancialTargetsReport;
   const amount = report?.B21 != null ? String(report.B21).trim() : null;
@@ -348,6 +389,7 @@ export async function cognitoSubmissionHandler(payload: any) {
 
   if (data.formId === "41") {
     await handleCashFlow(userEmail, payload);
+    await handleFinancialMetrics(userEmail, payload);
   }
 
   // Only form 29 (Final Step) includes the company logo upload field.
