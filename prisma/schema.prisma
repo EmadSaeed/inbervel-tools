@@ -166,7 +166,7 @@ model ProductivityRecord {
 
     user User @relation(fields: [userEmail], references: [email])
 
-    @@index([userEmail])
+    @@unique([userEmail])
 }
 
 model NinetyDayAction {

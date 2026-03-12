@@ -398,17 +398,11 @@ export async function cognitoSubmissionHandler(payload: any) {
 
     const breakEvenRpp = payload?.FinancialReport?.B14 ?? null;
     if (breakEvenRpp !== null) {
-      const existing = await prisma.productivityRecord.findFirst({ where: { userEmail } });
-      if (existing) {
-        await prisma.productivityRecord.update({
-          where: { id: existing.id },
-          data: { breakEvenRpp, recordedAt: new Date() },
-        });
-      } else {
-        await prisma.productivityRecord.create({
-          data: { userEmail, percentage: 0, breakEvenRpp, recordedAt: new Date() },
-        });
-      }
+      await prisma.productivityRecord.upsert({
+        where: { userEmail },
+        update: { breakEvenRpp, recordedAt: new Date() },
+        create: { userEmail, percentage: 0, breakEvenRpp, recordedAt: new Date() },
+      });
     }
   }
 
