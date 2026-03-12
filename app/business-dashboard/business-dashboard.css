@@ -34,10 +34,8 @@
 }
 
 .dashboard__logo {
-  width: 120px;
+  width: 140px;
   height: 52px;
-  background: var(--bg-logo);
-  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -64,6 +62,7 @@
   margin: 0;
   flex: 1;
   text-align: center;
+  text-transform: uppercase;
 }
 
 /* ─── Stat Cards Row ─────────────────────────────────────────────────────────── */
@@ -161,10 +160,22 @@
 .productivity__bar-pct {
   position: absolute;
   top: 50%;
-  transform: translate(50%, -50%);
+  transform: translate(-50%, -50%);
   color: var(--text-white);
   font-size: 14px;
   font-weight: 600;
+}
+
+.productivity__stats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.productivity__stat {
+  color: var(--text-white);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 /* ─── Cash Flow Panel ────────────────────────────────────────────────────────── */
@@ -172,62 +183,50 @@
   background: var(--bg-card);
   border-radius: 8px;
   padding: 16px 20px;
-  position: relative;
+}
+
+.cashflow__title {
+  color: var(--text-white);
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 12px;
+  letter-spacing: 1px;
 }
 
 .cashflow__inner {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
 }
 
-.cashflow__badge {
-  background: var(--green);
-  border-radius: 4px;
-  padding: 4px 12px;
-  color: var(--text-white);
-  font-size: 18px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.cashflow__bar-wrap {
+.cashflow__amount-box {
   flex: 1;
-  position: relative;
-  height: 26px;
-  min-width: 80px;
-}
-
-.cashflow__bar-track {
-  position: absolute;
-  inset: 0;
   background: var(--bar-track);
   border-radius: 4px;
-}
-
-.cashflow__bar-fill {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 55%;
-  background: var(--green);
-  border-radius: 4px;
+  height: 36px;
   display: flex;
   align-items: center;
-  padding-left: 8px;
+  gap: 8px;
+  padding: 0 12px;
+  box-shadow: inset 4px 4px 5px 0px #000000;
+}
+
+.cashflow__currency {
+  color: #222;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 .cashflow__amount {
-  color: var(--bg-page);
+  color: #222;
   font-size: 18px;
   font-weight: 700;
 }
 
 .cashflow__vat {
   color: var(--text-white);
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 700;
   white-space: nowrap;
 }
 
@@ -490,14 +489,6 @@
     font-size: 15px;
   }
 
-  .cashflow__badge {
-    font-size: 15px;
-  }
-
-  .cashflow__vat {
-    width: 100%;
-    text-align: right;
-  }
 
   .ninety-days__header,
   .ninety-days__row {

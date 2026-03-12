@@ -147,7 +147,7 @@ model CashFlow {
     id          String   @id @default(cuid())
     userEmail   String
     amount      Decimal
-    includesVat Boolean  @default(true)
+    includesVat String
     recordedAt  DateTime
 
     user User @relation(fields: [userEmail], references: [email])
@@ -156,10 +156,12 @@ model CashFlow {
 }
 
 model ProductivityRecord {
-    id         String   @id @default(cuid())
-    userEmail  String
-    percentage Float
-    recordedAt DateTime
+    id            String   @id @default(cuid())
+    userEmail     String
+    percentage    Float
+    breakEvenRpp  Decimal?
+    theMonthRpp   Decimal?
+    recordedAt    DateTime
 
     user User @relation(fields: [userEmail], references: [email])
 

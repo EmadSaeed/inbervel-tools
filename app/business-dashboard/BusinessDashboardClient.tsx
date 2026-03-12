@@ -151,6 +151,10 @@ function ProductivityPanel() {
           {pct}%
         </span>
       </div>
+      <div className="productivity__stats">
+        <span className="productivity__stat">Break-even RPP:&nbsp;&nbsp;£1200.00</span>
+        <span className="productivity__stat">The Months RPP:&nbsp;&nbsp;£900.00</span>
+      </div>
     </div>
   );
 }
@@ -158,13 +162,11 @@ function ProductivityPanel() {
 function CashFlowPanel() {
   return (
     <div className="cashflow">
+      <p className="cashflow__title">CASH FLOW +/-</p>
       <div className="cashflow__inner">
-        <div className="cashflow__badge">Cash Flow +/-</div>
-        <div className="cashflow__bar-wrap">
-          <div className="cashflow__bar-track" />
-          <div className="cashflow__bar-fill">
-            <span className="cashflow__amount">£3000</span>
-          </div>
+        <div className="cashflow__amount-box">
+          <span className="cashflow__currency">£</span>
+          <span className="cashflow__amount">3000.00</span>
         </div>
         <span className="cashflow__vat">Cash includes VAT</span>
       </div>
@@ -374,11 +376,11 @@ export default function BusinessDashboardClient({
           {companyLogoUrl ? (
             <img src={companyLogoUrl} alt={companyName ?? "Company logo"} className="dashboard__logo-img" />
           ) : (
-            <span className="dashboard__logo-text">INBERVEL</span>
+            <span className="dashboard__logo-text">${companyName}</span>
           )}
         </div>
         <h1 className="dashboard__title">
-          {companyName ? `${companyName} Business Dashboard` : "Business Dashboard"}
+          {companyName ? `${companyName} - Business Dashboard` : "Business Dashboard"}
         </h1>
       </div>
 

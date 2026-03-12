@@ -189,6 +189,33 @@ function parseName(nameValue: unknown): { firstName: string | null; lastName: st
   };
 }
 
+async function handleCashFlow(userEmail: string, payload: any) {
+  const amount = payload?.B21 != null ? String(payload.B21).trim() : null;
+  const includesVat = payload?.G21 != null ? String(payload.G21).trim() : null;
+
+  if (!amount) {
+    console.warn("[cognitoHandler] Form 41: missing B21, skipping CashFlow upsert.");
+    return;
+  }
+
+  const existing = await prisma.cashFlow.findFirst({ where: { userEmail } });
+
+  if (existing) {
+    await prisma.cashFlow.update({
+      where: { id: existing.id },
+      data: {
+        amount,
+        ...(includesVat !== null ? { includesVat } : {}),
+        recordedAt: new Date(),
+      },
+    });
+  } else {
+    await prisma.cashFlow.create({
+      data: { userEmail, amount, includesVat: includesVat ?? "", recordedAt: new Date() },
+    });
+  }
+}
+
 // Main entry point called by the webhook route.
 // Parses the incoming Cognito payload, optionally uploads the company logo,
 // then upserts the submission into the database (insert on first submit, update on re-submit).
@@ -316,6 +343,10 @@ export async function cognitoSubmissionHandler(payload: any) {
         error,
       });
     }
+  }
+
+  if (data.formId === "41") {
+    await handleCashFlow(userEmail, payload);
   }
 
   // Only form 29 (Final Step) includes the company logo upload field.
