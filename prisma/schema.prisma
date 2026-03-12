@@ -162,6 +162,7 @@ model ProductivityRecord {
     percentage    Float
     breakEvenRpp  Decimal?
     theMonthRpp   Decimal?
+    targetFigure  Decimal?
     recordedAt    DateTime
 
     user User @relation(fields: [userEmail], references: [email])
