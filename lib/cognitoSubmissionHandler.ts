@@ -226,7 +226,7 @@ async function handleFinancialMetrics(userEmail: string, payload: any) {
     upsertFinancialMetric(userEmail, "GROSS_PROFIT", "YEAR",  pl?.E30 ?? null, pl?.E31 ?? null),
     upsertFinancialMetric(userEmail, "NET_PROFIT",   "MONTH", pl?.D57 ?? null, pl?.D58 ?? null),
     upsertFinancialMetric(userEmail, "NET_PROFIT",   "YEAR",  pl?.E57 ?? null, pl?.E58 ?? null),
-    upsertFinancialMetric(userEmail, "REVENUE",      "MONTH", ft?.B8  ?? null, null),
+    upsertFinancialMetric(userEmail, "REVENUE",      "MONTH", ft?.B8  ?? null, 90),
   ]);
 }
 
@@ -429,7 +429,7 @@ export async function cognitoSubmissionHandler(payload: any) {
 
   if (data.formId === "25") {
     const pl = payload?.ProfitAndLossReport;
-    await upsertFinancialMetric(userEmail, "REVENUE", "YEAR", pl?.I9 ?? null, null);
+    await upsertFinancialMetric(userEmail, "REVENUE", "YEAR", pl?.I9 ?? null, 90);
 
     const breakEvenRpp = payload?.FinancialReport?.B14 ?? null;
     if (breakEvenRpp !== null) {
