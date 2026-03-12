@@ -159,16 +159,16 @@ function ProductivityPanel() {
   );
 }
 
-function CashFlowPanel() {
+function CashFlowPanel({ amount, includesVat }: { amount: string | null; includesVat: string | null }) {
   return (
     <div className="cashflow">
       <p className="cashflow__title">CASH FLOW +/-</p>
       <div className="cashflow__inner">
         <div className="cashflow__amount-box">
           <span className="cashflow__currency">£</span>
-          <span className="cashflow__amount">3000.00</span>
+          <span className="cashflow__amount">{amount ?? "—"}</span>
         </div>
-        <span className="cashflow__vat">Cash includes VAT</span>
+        {includesVat && <span className="cashflow__vat">{includesVat}</span>}
       </div>
     </div>
   );
@@ -333,6 +333,7 @@ interface Props {
   readyToGenerate: boolean;
   companyName: string | null;
   companyLogoUrl: string | null;
+  cashFlow: { amount: string; includesVat: string } | null;
 }
 
 export default function BusinessDashboardClient({
@@ -342,6 +343,7 @@ export default function BusinessDashboardClient({
   readyToGenerate,
   companyName,
   companyLogoUrl,
+  cashFlow,
 }: Props) {
   const [generatingPlan, setGeneratingPlan] = useState(false);
 
@@ -394,7 +396,7 @@ export default function BusinessDashboardClient({
       {/* ── Middle Row: Productivity | Cash Flow ── */}
       <div className="dashboard__middle-row">
         <ProductivityPanel />
-        <CashFlowPanel />
+        <CashFlowPanel amount={cashFlow?.amount ?? null} includesVat={cashFlow?.includesVat ?? null} />
       </div>
 
       {/* ── Bottom Row: 90 Days Actions | Action Tools + Download ── */}
