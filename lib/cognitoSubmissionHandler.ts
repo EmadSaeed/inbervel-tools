@@ -196,21 +196,21 @@ async function upsertFinancialMetric(
   value: number | null,
   percentage: number | null,
 ) {
-  if (value === null) return;
-
   const existing = await prisma.financialMetric.findFirst({
     where: { userEmail, type, period },
   });
 
-  const data = {
-    value,
-    ...(percentage !== null ? { percentage } : {}),
-    recordedAt: new Date(),
-  };
-
   if (existing) {
-    await prisma.financialMetric.update({ where: { id: existing.id }, data });
+    await prisma.financialMetric.update({
+      where: { id: existing.id },
+      data: {
+        ...(value !== null ? { value } : {}),
+        ...(percentage !== null ? { percentage } : {}),
+        recordedAt: new Date(),
+      },
+    });
   } else {
+    if (value === null) return; // can't create without a value
     await prisma.financialMetric.create({
       data: { userEmail, type, period, value, percentage: percentage ?? undefined, recordedAt: new Date() },
     });
