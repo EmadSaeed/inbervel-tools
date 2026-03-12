@@ -64,14 +64,9 @@ const GAUGE_ARC = {
   padding: 0.02,
   width: 0.3,
   subArcs: [
-    { limit: 15,  color: "#cc1100" },
-    { limit: 30,  color: "#ff2600" },
-    { limit: 45,  color: "#ff5500" },
-    { limit: 60,  color: "#ff8c00" },
-    { limit: 70,  color: "#c8a000" },
-    { limit: 80,  color: "#8db600" },
-    { limit: 90,  color: "#4caf50" },
-    { limit: 100, color: "#2e7d32" },
+    { limit: 80,  color: "#ff2600" },
+    { limit: 100, color: "#ff8c00" },
+    { limit: 120, color: "#2e7d32" },
   ],
 };
 
@@ -98,7 +93,7 @@ const GAUGE_LABELS = {
   },
   tickLabels: {
     type: "inner" as const,
-    ticks: [{ value: 20 }, { value: 40 }, { value: 60 }, { value: 80 }, { value: 100 }],
+    ticks: [{ value: 20 }, { value: 40 }, { value: 60 }, { value: 80 }, { value: 100 }, { value: 120 }],
     defaultTickValueConfig: { style: { fontSize: "11px", fill: "#feffff" }, formatTextValue: (v: number) => `${v}%` },
     defaultTickLineConfig: { distanceFromArc: 3, distanceFromText: 12 },
   },
@@ -114,7 +109,7 @@ function StatCard({ title, monthValue, yearValue, monthLabel, yearLabel }: StatC
         <div className="stat-card__gauge">
           <GaugeComponent
             value={monthValue}
-            maxValue={100}
+            maxValue={120}
             type="radial"
             arc={GAUGE_ARC}
             pointer={GAUGE_POINTER}
@@ -127,7 +122,7 @@ function StatCard({ title, monthValue, yearValue, monthLabel, yearLabel }: StatC
         <div className="stat-card__gauge">
           <GaugeComponent
             value={yearValue}
-            maxValue={100}
+            maxValue={120}
             type="radial"
             arc={GAUGE_ARC}
             pointer={GAUGE_POINTER}
