@@ -395,6 +395,21 @@ export async function cognitoSubmissionHandler(payload: any) {
   if (data.formId === "25") {
     const pl = payload?.ProfitAndLossReport;
     await upsertFinancialMetric(userEmail, "REVENUE", "YEAR", pl?.I9 ?? null, null);
+
+    const breakEvenRpp = payload?.FinancialReport?.B14 ?? null;
+    if (breakEvenRpp !== null) {
+      const existing = await prisma.productivityRecord.findFirst({ where: { userEmail } });
+      if (existing) {
+        await prisma.productivityRecord.update({
+          where: { id: existing.id },
+          data: { breakEvenRpp, recordedAt: new Date() },
+        });
+      } else {
+        await prisma.productivityRecord.create({
+          data: { userEmail, percentage: 0, breakEvenRpp, recordedAt: new Date() },
+        });
+      }
+    }
   }
 
   // Only form 29 (Final Step) includes the company logo upload field.
