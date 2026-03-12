@@ -56,8 +56,8 @@ export default async function BusinessDashboardPage() {
     const fmt   = (v: { toString(): string } | null | undefined) =>
       v != null ? `£${Number(v).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : "—";
     return {
-      monthPercentage: month?.percentage != null ? month.percentage * 100 : 0,
-      yearPercentage:  year?.percentage  != null ? year.percentage  * 100 : 0,
+      monthPercentage: month?.percentage ?? 0,
+      yearPercentage:  year?.percentage  ?? 0,
       monthValue: fmt(month?.value),
       yearValue:  fmt(year?.value),
     };
