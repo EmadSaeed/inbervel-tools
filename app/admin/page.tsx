@@ -205,16 +205,6 @@ export default function AdminPage() {
                         {loading ? "Searching..." : "Search for a client"}
                     </button>
 
-                    <div style={{ marginTop: 24 }}>
-                        <button
-                            className="primaryBtn"
-                            onClick={() => router.push("/manage-forms")}
-                            style={{ fontSize: 16 }}
-                        >
-                            ▼ Manage Forms
-                        </button>
-                    </div>
-
                     {data?.companyName && (
                         <div className="companyLine">
                             <strong>Company Name:</strong> {data.companyName}
