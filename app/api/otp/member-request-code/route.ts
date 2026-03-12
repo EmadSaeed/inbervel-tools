@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
             <td style="padding:40px 36px 32px;">
               <p style="margin:0 0 8px;font-size:16px;color:#222;">Hi,</p>
               <p style="margin:0 0 28px;font-size:15px;color:#444;line-height:1.6;">
-                Here is your one-time sign-in code for Inbervel:
+                Here is your one-time sign-in code for you to access your Business Dashboard. Just enter the code below in the login page to get started.:
               </p>
 
               <!-- Code block -->
