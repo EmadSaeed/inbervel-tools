@@ -392,6 +392,11 @@ export async function cognitoSubmissionHandler(payload: any) {
     await handleFinancialMetrics(userEmail, payload);
   }
 
+  if (data.formId === "25") {
+    const pl = payload?.ProfitAndLossReport;
+    await upsertFinancialMetric(userEmail, "REVENUE", "YEAR", pl?.I9 ?? null, null);
+  }
+
   // Only form 29 (Final Step) includes the company logo upload field.
   // For all other forms we skip the logo handling entirely.
   if (data.formId === "29") {
