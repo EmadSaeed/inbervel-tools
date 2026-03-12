@@ -89,7 +89,7 @@ const GAUGE_LABELS = {
     offsetX: 0,
     offsetY: -3,
     animateValue: false,
-    formatTextValue: (v: number) => `${v}%`,
+    formatTextValue: (v: number) => `${Math.round(v)}%`,
   },
   tickLabels: {
     type: "inner" as const,
