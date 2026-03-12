@@ -227,7 +227,7 @@ async function handleFinancialMetrics(userEmail: string, payload: any) {
     upsertFinancialMetric(userEmail, "NET_PROFIT",   "MONTH", pl?.D57 ?? null, pl?.D58 != null ? pl.D58 * 100 : null),
     upsertFinancialMetric(userEmail, "NET_PROFIT",   "YEAR",  pl?.E57 ?? null, pl?.E58 != null ? pl.E58 * 100 : null),
     upsertFinancialMetric(userEmail, "REVENUE",      "MONTH", ft?.B8  ?? null, 0.9 * 100),
-    upsertFinancialMetric(userEmail, "REVENUE",      "YEAR",  pl?.I9 ?? null,  0.9 * 100),
+    upsertFinancialMetric(userEmail, "REVENUE",      "YEAR",  null,            0.9 * 100),
   ]);
 }
 
