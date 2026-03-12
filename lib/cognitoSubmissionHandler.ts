@@ -390,6 +390,15 @@ export async function cognitoSubmissionHandler(payload: any) {
   if (data.formId === "41") {
     await handleCashFlow(userEmail, payload);
     await handleFinancialMetrics(userEmail, payload);
+
+    const theMonthRpp = payload?.FinancialTargetsReport?.B10 ?? null;
+    if (theMonthRpp !== null) {
+      await prisma.productivityRecord.upsert({
+        where: { userEmail },
+        update: { theMonthRpp, recordedAt: new Date() },
+        create: { userEmail, percentage: 0, theMonthRpp, recordedAt: new Date() },
+      });
+    }
   }
 
   if (data.formId === "25") {
