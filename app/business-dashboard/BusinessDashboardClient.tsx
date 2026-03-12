@@ -147,6 +147,7 @@ function ProductivityPanel({ percentage, breakEvenRpp, theMonthRpp, targetFigure
 }) {
   const pct = Math.min(Math.max(percentage, 0), 100);
   const fmt = (v: string | null) => v ? `£${Number(v).toFixed(2)}` : "—";
+  const barColor = pct >= 80 ? "#3b943e" : pct >= 60 ? "#ff8c00" : "#ff2600";
   return (
     <div className="productivity">
       <div className="productivity__header">
@@ -155,7 +156,7 @@ function ProductivityPanel({ percentage, breakEvenRpp, theMonthRpp, targetFigure
       </div>
       <div className="productivity__bar-wrap">
         <div className="productivity__bar-track" />
-        <div className="productivity__bar-fill" style={{ width: `${pct}%` }} />
+        <div className="productivity__bar-fill" style={{ width: `${pct}%`, background: barColor }} />
         <span className="productivity__bar-pct" style={{ right: `${100 - pct}%` }}>
           {pct.toFixed(0)}%
         </span>
