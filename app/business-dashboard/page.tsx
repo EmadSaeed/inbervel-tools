@@ -10,7 +10,7 @@ export default async function BusinessDashboardPage() {
 
   const userEmail = session.user.email as string;
 
-  const [actions, actionToolRows, forms, submissions, member, cashFlow, productivity] = await Promise.all([
+  const [actions, actionToolRows, forms, submissions, member, cashFlow, productivity, financialMetrics] = await Promise.all([
     prisma.ninetyDayAction.findMany({
       where: { userEmail },
       orderBy: { createdAt: "asc" },
@@ -44,7 +44,24 @@ export default async function BusinessDashboardPage() {
       where: { userEmail },
       select: { percentage: true, breakEvenRpp: true, theMonthRpp: true, targetFigure: true },
     }),
+    prisma.financialMetric.findMany({
+      where: { userEmail },
+      select: { type: true, period: true, value: true, percentage: true },
+    }),
   ]);
+
+  function buildMetric(type: string) {
+    const month = financialMetrics.find((m) => m.type === type && m.period === "MONTH");
+    const year  = financialMetrics.find((m) => m.type === type && m.period === "YEAR");
+    const fmt   = (v: { toString(): string } | null | undefined) =>
+      v != null ? `£${Number(v).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : "—";
+    return {
+      monthPercentage: month?.percentage ?? 0,
+      yearPercentage:  year?.percentage  ?? 0,
+      monthValue: fmt(month?.value),
+      yearValue:  fmt(year?.value),
+    };
+  }
 
   const submittedFormIds = new Set(submissions.filter((s) => s.outputPdfUrl).map((s) => s.formId));
 
@@ -94,6 +111,9 @@ export default async function BusinessDashboardPage() {
       companyName={member?.companyName ?? null}
       companyLogoUrl={companyLogoDataUrl}
       cashFlow={cashFlow ? { amount: cashFlow.amount.toString(), includesVat: String(cashFlow.includesVat) } : null}
+      grossProfit={buildMetric("GROSS_PROFIT")}
+      revenue={buildMetric("REVENUE")}
+      netProfit={buildMetric("NET_PROFIT")}
       productivity={productivity ? {
         percentage: productivity.percentage,
         breakEvenRpp: productivity.breakEvenRpp?.toString() ?? null,
