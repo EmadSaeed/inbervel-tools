@@ -317,6 +317,15 @@ export async function cognitoSubmissionHandler(payload: any) {
   console.log("[cognitoHandler] formId received:", JSON.stringify(data.formId));
   if (data.formId === "8") {
     await handleNext90DaysActions(userEmail, payload);
+
+    const targetFigure = payload?.Pillar2Operations?.Target ?? null;
+    if (targetFigure !== null) {
+      await prisma.productivityRecord.upsert({
+        where: { userEmail },
+        update: { targetFigure, recordedAt: new Date() },
+        create: { userEmail, percentage: 0, targetFigure, recordedAt: new Date() },
+      });
+    }
   }
 
   // Look up whether this form is a known business-plan form so we can upsert ActionTool.
