@@ -139,21 +139,30 @@ function StatCard({ title, monthValue, yearValue, monthLabel, yearLabel }: StatC
   );
 }
 
-function ProductivityPanel() {
-  const pct = 75;
+function ProductivityPanel({ percentage, breakEvenRpp, theMonthRpp, targetFigure }: {
+  percentage: number;
+  breakEvenRpp: string | null;
+  theMonthRpp: string | null;
+  targetFigure: string | null;
+}) {
+  const pct = Math.min(Math.max(percentage, 0), 100);
+  const fmt = (v: string | null) => v ? `£${Number(v).toFixed(2)}` : "—";
   return (
     <div className="productivity">
-      <p className="productivity__title">CURRENT PRODUCTIVITY</p>
+      <div className="productivity__header">
+        <p className="productivity__title">CURRENT PRODUCTIVITY</p>
+        <span className="productivity__stat">The Months RPP:&nbsp;&nbsp;{fmt(theMonthRpp)}</span>
+      </div>
       <div className="productivity__bar-wrap">
         <div className="productivity__bar-track" />
         <div className="productivity__bar-fill" style={{ width: `${pct}%` }} />
         <span className="productivity__bar-pct" style={{ right: `${100 - pct}%` }}>
-          {pct}%
+          {pct.toFixed(0)}%
         </span>
       </div>
       <div className="productivity__stats">
-        <span className="productivity__stat">Break-even RPP:&nbsp;&nbsp;£1200.00</span>
-        <span className="productivity__stat">The Months RPP:&nbsp;&nbsp;£900.00</span>
+        <span className="productivity__stat">Break-even RPP:&nbsp;&nbsp;{fmt(breakEvenRpp)}</span>
+        <span className="productivity__stat">Target Figure:&nbsp;&nbsp;{fmt(targetFigure)}</span>
       </div>
     </div>
   );
@@ -334,6 +343,7 @@ interface Props {
   companyName: string | null;
   companyLogoUrl: string | null;
   cashFlow: { amount: string; includesVat: string } | null;
+  productivity: { percentage: number; breakEvenRpp: string | null; theMonthRpp: string | null; targetFigure: string | null } | null;
 }
 
 export default function BusinessDashboardClient({
@@ -344,6 +354,7 @@ export default function BusinessDashboardClient({
   companyName,
   companyLogoUrl,
   cashFlow,
+  productivity,
 }: Props) {
   const [generatingPlan, setGeneratingPlan] = useState(false);
 
@@ -395,7 +406,12 @@ export default function BusinessDashboardClient({
 
       {/* ── Middle Row: Productivity | Cash Flow ── */}
       <div className="dashboard__middle-row">
-        <ProductivityPanel />
+        <ProductivityPanel
+          percentage={productivity?.percentage ?? 0}
+          breakEvenRpp={productivity?.breakEvenRpp ?? null}
+          theMonthRpp={productivity?.theMonthRpp ?? null}
+          targetFigure={productivity?.targetFigure ?? null}
+        />
         <CashFlowPanel amount={cashFlow?.amount ?? null} includesVat={cashFlow?.includesVat ?? null} />
       </div>
 

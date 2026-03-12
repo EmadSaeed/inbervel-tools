@@ -128,11 +128,18 @@
   padding: 16px 20px;
 }
 
+.productivity__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
 .productivity__title {
   color: var(--text-white);
   font-size: 18px;
   font-weight: 700;
-  margin: 0 0 12px;
+  margin: 0;
   letter-spacing: 1px;
 }
 

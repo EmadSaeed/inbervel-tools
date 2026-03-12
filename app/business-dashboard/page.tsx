@@ -10,7 +10,7 @@ export default async function BusinessDashboardPage() {
 
   const userEmail = session.user.email as string;
 
-  const [actions, actionToolRows, forms, submissions, member, cashFlow] = await Promise.all([
+  const [actions, actionToolRows, forms, submissions, member, cashFlow, productivity] = await Promise.all([
     prisma.ninetyDayAction.findMany({
       where: { userEmail },
       orderBy: { createdAt: "asc" },
@@ -39,6 +39,10 @@ export default async function BusinessDashboardPage() {
       where: { userEmail },
       select: { amount: true, includesVat: true },
       orderBy: { recordedAt: "desc" },
+    }),
+    prisma.productivityRecord.findUnique({
+      where: { userEmail },
+      select: { percentage: true, breakEvenRpp: true, theMonthRpp: true, targetFigure: true },
     }),
   ]);
 
@@ -90,6 +94,12 @@ export default async function BusinessDashboardPage() {
       companyName={member?.companyName ?? null}
       companyLogoUrl={companyLogoDataUrl}
       cashFlow={cashFlow ? { amount: cashFlow.amount.toString(), includesVat: String(cashFlow.includesVat) } : null}
+      productivity={productivity ? {
+        percentage: productivity.percentage,
+        breakEvenRpp: productivity.breakEvenRpp?.toString() ?? null,
+        theMonthRpp: productivity.theMonthRpp?.toString() ?? null,
+        targetFigure: productivity.targetFigure?.toString() ?? null,
+      } : null}
     />
   );
 }
