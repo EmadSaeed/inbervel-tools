@@ -56,13 +56,9 @@ export default function MemberLogin() {
             <div className="loginContainer">
                 <div className="loginBrandRow">
                     <Image src="/Inbervel-logo.png" alt="Inbervel Logo" width={160} height={100} className="logoImg" />
-                    <div className="loginTagline">Profit-Pilot Business Plan Generator</div>
                 </div>
                 <div className="loginCard">
                     <h1 className="loginTitle">Member Login</h1>
-                    <p className="loginSub">
-                        Enter the email address you used to submit your business plan form.
-                    </p>
 
                     <label className="fieldLabel">Email</label>
                     <div className="row">
