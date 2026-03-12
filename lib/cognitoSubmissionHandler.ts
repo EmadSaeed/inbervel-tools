@@ -190,8 +190,9 @@ function parseName(nameValue: unknown): { firstName: string | null; lastName: st
 }
 
 async function handleCashFlow(userEmail: string, payload: any) {
-  const amount = payload?.B21 != null ? String(payload.B21).trim() : null;
-  const includesVat = payload?.G21 != null ? String(payload.G21).trim() : null;
+  const report = payload?.FinancialTargetsReport;
+  const amount = report?.B21 != null ? String(report.B21).trim() : null;
+  const includesVat = report?.G21 != null ? String(report.G21).trim() : null;
 
   if (!amount) {
     console.warn("[cognitoHandler] Form 41: missing B21, skipping CashFlow upsert.");
