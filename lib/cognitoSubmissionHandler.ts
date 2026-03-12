@@ -230,6 +230,21 @@ async function handleFinancialMetrics(userEmail: string, payload: any) {
   ]);
 }
 
+async function recalculateProductivityPercentage(userEmail: string) {
+  const record = await prisma.productivityRecord.findUnique({ where: { userEmail } });
+  if (!record?.theMonthRpp || !record?.targetFigure) return;
+
+  const theMonthRpp = Number(record.theMonthRpp);
+  const targetFigure = Number(record.targetFigure);
+  if (targetFigure === 0) return;
+
+  const percentage = (theMonthRpp / targetFigure) * 100;
+  await prisma.productivityRecord.update({
+    where: { userEmail },
+    data: { percentage },
+  });
+}
+
 async function handleCashFlow(userEmail: string, payload: any) {
   const report = payload?.FinancialTargetsReport;
   const amount = report?.B21 != null ? String(report.B21).trim() : null;
@@ -325,6 +340,7 @@ export async function cognitoSubmissionHandler(payload: any) {
         update: { targetFigure, recordedAt: new Date() },
         create: { userEmail, percentage: 0, targetFigure, recordedAt: new Date() },
       });
+      await recalculateProductivityPercentage(userEmail);
     }
   }
 
@@ -407,6 +423,7 @@ export async function cognitoSubmissionHandler(payload: any) {
         update: { theMonthRpp, recordedAt: new Date() },
         create: { userEmail, percentage: 0, theMonthRpp, recordedAt: new Date() },
       });
+      await recalculateProductivityPercentage(userEmail);
     }
   }
 
@@ -422,6 +439,7 @@ export async function cognitoSubmissionHandler(payload: any) {
         create: { userEmail, percentage: 0, breakEvenRpp, recordedAt: new Date() },
       });
     }
+    // breakEvenRpp doesn't affect percentage calculation — no recalculation needed
   }
 
   // Only form 29 (Final Step) includes the company logo upload field.
