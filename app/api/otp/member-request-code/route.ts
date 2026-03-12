@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
           <tr>
             <td align="center" style="background:#0C2218;padding:28px 32px 20px;">
               <img src="${logoUrl}" alt="Inbervel" width="130" style="display:block;margin:0 auto;" />
-              <div style="color:#a7ff72;font-size:11px;letter-spacing:1.5px;margin-top:10px;text-transform:uppercase;">Profit-Pilot Business Plan Generator</div>
+              <div style="color:#a7ff72;font-size:11px;letter-spacing:1.5px;margin-top:10px;text-transform:uppercase;">Profit-Pilot Business Dashboard</div>
             </td>
           </tr>
 
