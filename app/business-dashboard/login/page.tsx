@@ -68,6 +68,10 @@ export default function MemberLogin() {
                 </div>
                 <div className="loginCard">
                     <h1 className="loginTitle">Member Login</h1>
+                    <p className="loginSub">
+                        To access your Business Dashboard, you need to complete at least one of Your Business Tools below.
+                        <br />Once you do, you can log in here with the same email you used for the tool, and we will send you a 6-digit passcode to access your dashboard.
+                    </p>
                     {error && (
                         <p style={{ color: "red", fontSize: 13, marginBottom: 12, wordBreak: "break-word" }}>
                             {error}
