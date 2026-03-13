@@ -14,6 +14,7 @@ export default function MemberLogin() {
     const [sent, setSent] = useState(false);
     const [sending, setSending] = useState(false);
     const [verifying, setVerifying] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     async function sendCode() {
         setSending(true);
@@ -38,17 +39,20 @@ export default function MemberLogin() {
 
     async function verify() {
         setVerifying(true);
+        setError(null);
         try {
             const result = await signIn("member", {
                 email,
                 code,
                 redirect: false,
             });
-            if (result?.error) {
-                alert("Invalid or expired code. Please try again.");
+            if (!result || result.error) {
+                setError(`Sign-in failed: ${result?.error ?? "unknown error"}`);
             } else {
                 router.push("/business-dashboard");
             }
+        } catch (e) {
+            setError(`Exception: ${e instanceof Error ? e.message : String(e)}`);
         } finally {
             setVerifying(false);
         }
@@ -66,6 +70,11 @@ export default function MemberLogin() {
                 </div>
                 <div className="loginCard">
                     <h1 className="loginTitle">Member Login</h1>
+                    {error && (
+                        <p style={{ color: "red", fontSize: 13, marginBottom: 12, wordBreak: "break-word" }}>
+                            {error}
+                        </p>
+                    )}
 
 
                     <label className="fieldLabel">Email</label>
