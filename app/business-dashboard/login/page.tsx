@@ -4,9 +4,11 @@ import "@/app/admin/login/login.css";
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function MemberLogin() {
+    const router = useRouter();
     const [email, setEmail] = useState("");
     const [code, setCode] = useState("");
     const [sent, setSent] = useState(false);
@@ -37,12 +39,16 @@ export default function MemberLogin() {
     async function verify() {
         setVerifying(true);
         try {
-            await signIn("member", {
+            const result = await signIn("member", {
                 email,
                 code,
-                callbackUrl: "/business-dashboard",
-                redirect: true,
+                redirect: false,
             });
+            if (result?.error) {
+                alert("Invalid or expired code. Please try again.");
+            } else {
+                router.push("/business-dashboard");
+            }
         } finally {
             setVerifying(false);
         }
