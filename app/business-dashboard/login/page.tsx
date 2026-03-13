@@ -4,11 +4,9 @@ import "@/app/admin/login/login.css";
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function MemberLogin() {
-    const router = useRouter();
     const [email, setEmail] = useState("");
     const [code, setCode] = useState("");
     const [sent, setSent] = useState(false);
@@ -49,7 +47,7 @@ export default function MemberLogin() {
             if (!result || result.error) {
                 setError(`Sign-in failed: ${result?.error ?? "unknown error"}`);
             } else {
-                router.push("/business-dashboard");
+                window.location.href = "/business-dashboard";
             }
         } catch (e) {
             setError(`Exception: ${e instanceof Error ? e.message : String(e)}`);
