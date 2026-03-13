@@ -12,6 +12,7 @@ export default function MemberLogin() {
     const [sent, setSent] = useState(false);
     const [sending, setSending] = useState(false);
     const [verifying, setVerifying] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     async function sendCode() {
         setSending(true);
@@ -36,13 +37,20 @@ export default function MemberLogin() {
 
     async function verify() {
         setVerifying(true);
+        setError(null);
         try {
-            await signIn("member", {
+            const result = await signIn("member", {
                 email,
                 code,
-                callbackUrl: "/business-dashboard",
-                redirect: true,
+                redirect: false,
             });
+            if (!result || result.error) {
+                setError("Invalid or expired code. Please try again.");
+            } else {
+                window.location.href = "/business-dashboard";
+            }
+        } catch (e) {
+            setError(`Error: ${e instanceof Error ? e.message : String(e)}`);
         } finally {
             setVerifying(false);
         }
@@ -59,7 +67,11 @@ export default function MemberLogin() {
                 </div>
                 <div className="loginCard">
                     <h1 className="loginTitle">Member Login</h1>
-
+                    {error && (
+                        <p style={{ color: "red", fontSize: 13, marginBottom: 12, wordBreak: "break-word" }}>
+                            {error}
+                        </p>
+                    )}
                     <label className="fieldLabel">Email</label>
                     <div className="row">
                         <input
