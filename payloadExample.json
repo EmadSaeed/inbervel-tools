@@ -33,12 +33,12 @@
       "CountryCode": null
     },
     "Status": "Submitted",
-    "Version": 3,
+    "Version": 39,
     "AdminLink": "https://www.cognitoforms.com/Inbervel1/8/entries/11",
-    "Document3": "https://www.cognitoforms.com/d/gjEUqdUj2EqumrYi808yEQ?code=AhlFgmPt8vzy1ehhNXKNBDVP90WOmNV_n4PmYaWTQIc$",
+    "Document3": "https://www.cognitoforms.com/d/gjEUqdUj2EqumrYi808yEQ?code=3bToN-7VAEsHwwd8uBRIjdXXVravfG7hBCta0KKYsjE$",
     "Timestamp": "2026-02-09T16:34:27.588Z",
     "DateCreated": "2026-02-09T16:34:27.588Z",
-    "DateUpdated": "2026-03-09T15:48:03.534Z",
+    "DateUpdated": "2026-03-11T18:17:44.152Z",
     "DateSubmitted": "2026-02-09T16:34:27.588Z"
   },
   "CompanyName": "Acme Pest Control",
@@ -56,7 +56,7 @@
     "Strategy4": "Monitor staff churn and have a meeting with every leaver to establish real reasons and take their comments on board for consideration.",
     "Target1_IncrementBy": 0.05
   },
-  "In3YearsWeWill": "We will have a strong team of loyal motivated staff that will help us build a reputation as the most reliable pest control company in Berkshire delivering effective solutions. We will have a turnover of £1m and 20% net profit with 50% of our revenue from recurring commercial works.",
+  "In3YearsWeWill": "We will have a strong team of loyal motivated staff that will help us build a reputation as the most reliable pest control company in Berkshire delivering effective solutions. We will have a turnover of £1m and 20% net profit with 50% of our revenue from recurring commercial works. 1",
   "Pillar1FINANCE": {
     "Target1": 8747,
     "Target2": 0.5,
@@ -108,13 +108,13 @@
     "Target3_IncrementBy": 1
   },
   "_3Next90DaysBigMovesForEachPillar": {
-    "Date1": "2026-04-30",
-    "Date2": "2026-04-30",
+    "Date1": "2026-05-08",
+    "Date2": "2026-05-22",
     "Date3": "2026-04-30",
-    "Date4": "2026-04-30",
-    "People": "Make sure staff are clear of what is expected of them through staff handbooks, KPI's, performance reviews etc",
-    "Finance": "Make sure each piece of work is costed on inbervels quote calculator and allow extra time and/or materials as a buffer to error. Review quoting assumptions and adjust if persistently wrong. Make staff aware of the time that has been allowed and offer incentives if its completed early and question if it take longer.",
-    "Operations": "Do not accept, Identify reasons and establish if these were due to the clients and if they are can the client be charged extra. Make sure the scope of work is clear to the client and staff and any deviation will be charged. Make sure staff are aware how much time is allowed and consider incentives if they finish ahead of budget.",
+    "Date4": "2026-05-12",
+    "People": "Make sure staff are clear of what is expected of them through staff handbooks, KPI's, performance reviews etc 4",
+    "Finance": "Make sure each piece of work is costed on inbervels quote calculator and allow extra time and/or materials as a buffer to error. Review quoting assumptions and adjust if persistently wrong. Make staff aware of the time that has been allowed and offer incentives if its completed early and question if it take longer. 2",
+    "Operations": "Do not accept, Identify reasons and establish if these were due to the clients and if they are can the client be charged extra. Make sure the scope of work is clear to the client and staff and any deviation will be charged. Make sure staff are aware how much time is allowed and consider incentives if they finish ahead of budget. 2",
     "SalesMarketing": "Employ the services of a marketing agency to promote the business and set targets for myself and for staff to generate leads perhaps incentivising with commission payment."
   }
 }
