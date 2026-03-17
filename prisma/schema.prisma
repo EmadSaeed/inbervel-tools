@@ -136,6 +136,7 @@ model FinancialMetric {
     period     FinancialPeriod
     value      Decimal
     percentage Float?
+    budget     Decimal?
     currency   String              @default("GBP")
     recordedAt DateTime
 
