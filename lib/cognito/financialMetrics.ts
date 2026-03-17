@@ -41,7 +41,7 @@ export async function recalculateGrossProfitPercentage(userEmail: string, period
   const budget = Number(metric.budget);
   if (budget === 0) return;
 
-  const percentage = value / (budget * 100);
+  const percentage = value / budget * 100;
 
   await prisma.financialMetric.update({
     where: { id: metric.id },
