@@ -51,23 +51,13 @@ export async function recalculateGrossProfitPercentage(userEmail: string, period
 
 export async function recalculateRevenuePercentage(userEmail: string, period: "MONTH" | "YEAR") {
   const revenue = await prisma.financialMetric.findFirst({ where: { userEmail, type: "REVENUE", period } });
-  if (!revenue) return;
+  if (!revenue || revenue.budget === null) return;
 
   const revenueValue = Number(revenue.value);
-  let budgetDenominator: number;
+  const budget = Number(revenue.budget);
+  if (budget === 0) return;
 
-  if (period === "MONTH") {
-    const grossProfit = await prisma.financialMetric.findFirst({ where: { userEmail, type: "GROSS_PROFIT", period: "MONTH" } });
-    if (!grossProfit || grossProfit.budget === null) return;
-    budgetDenominator = Number(grossProfit.budget);
-  } else {
-    if (revenue.budget === null) return;
-    budgetDenominator = Number(revenue.budget);
-  }
-
-  if (budgetDenominator === 0) return;
-
-  const percentage = revenueValue / budgetDenominator * 100;
+  const percentage = revenueValue / budget * 100;
 
   await prisma.financialMetric.update({
     where: { id: revenue.id },
@@ -77,23 +67,13 @@ export async function recalculateRevenuePercentage(userEmail: string, period: "M
 
 export async function recalculateNetProfitPercentage(userEmail: string, period: "MONTH" | "YEAR") {
   const netProfit = await prisma.financialMetric.findFirst({ where: { userEmail, type: "NET_PROFIT", period } });
-  if (!netProfit) return;
+  if (!netProfit || netProfit.budget === null) return;
 
   const netProfitValue = Number(netProfit.value);
-  let budgetDenominator: number;
+  const budget = Number(netProfit.budget);
+  if (budget === 0) return;
 
-  if (period === "MONTH") {
-    const grossProfit = await prisma.financialMetric.findFirst({ where: { userEmail, type: "GROSS_PROFIT", period: "MONTH" } });
-    if (!grossProfit || grossProfit.budget === null) return;
-    budgetDenominator = Number(grossProfit.budget);
-  } else {
-    if (netProfit.budget === null) return;
-    budgetDenominator = Number(netProfit.budget);
-  }
-
-  if (budgetDenominator === 0) return;
-
-  const percentage = netProfitValue / budgetDenominator * 100;
+  const percentage = netProfitValue / budget * 100;
 
   await prisma.financialMetric.update({
     where: { id: netProfit.id },
