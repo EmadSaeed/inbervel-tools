@@ -67,7 +67,7 @@ export async function recalculateRevenuePercentage(userEmail: string, period: "M
 
   if (budgetDenominator === 0) return;
 
-  const percentage = revenueValue / (budgetDenominator * 100);
+  const percentage = revenueValue / budgetDenominator * 100;
 
   await prisma.financialMetric.update({
     where: { id: revenue.id },
@@ -93,7 +93,7 @@ export async function recalculateNetProfitPercentage(userEmail: string, period: 
 
   if (budgetDenominator === 0) return;
 
-  const percentage = netProfitValue / (budgetDenominator * 100);
+  const percentage = netProfitValue / budgetDenominator * 100;
 
   await prisma.financialMetric.update({
     where: { id: netProfit.id },
