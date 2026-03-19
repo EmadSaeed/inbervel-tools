@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
 import nodemailer from "nodemailer";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -38,6 +39,16 @@ export async function POST(req: NextRequest) {
   }
 
   const email = normaliseEmail(emailRaw);
+
+  // Rate limit: max 5 OTP requests per email per 10-minute window.
+  const rl = checkRateLimit(`admin-otp:${email}`);
+  if (!rl.allowed) {
+    const retryAfterSec = Math.ceil(rl.retryAfterMs / 1000);
+    return NextResponse.json(
+      { error: "Too many requests. Please wait before requesting another code." },
+      { status: 429, headers: { "Retry-After": String(retryAfterSec) } },
+    );
+  }
 
   // Allowlist check — silently succeed for unknown emails so we don't leak
   // information about which addresses are registered as admins.

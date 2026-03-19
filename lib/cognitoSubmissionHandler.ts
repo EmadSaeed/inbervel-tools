@@ -5,6 +5,7 @@ import { uploadRemoteFileToBlob, uploadLogoToBlob } from "@/lib/cognito/blobUplo
 import { handleCashFlow } from "@/lib/cognito/cashFlow";
 import { handleFinancialMetrics, handleFinancialBudgets, upsertFinancialMetric } from "@/lib/cognito/financialMetrics";
 import { recalculateProductivityPercentage } from "@/lib/cognito/productivity";
+import { FORM_ID_OBJECTIVES, FORM_ID_FINAL, FORM_ID_FINANCIAL, FORM_ID_CASH_FLOW } from "@/lib/forms/formIds";
 
 // Main entry point called by the webhook route.
 // Parses the incoming Cognito payload, optionally uploads the company logo,
@@ -64,7 +65,7 @@ export async function cognitoSubmissionHandler(payload: any) {
 
   console.log("[cognitoHandler] formId received:", JSON.stringify(data.formId));
 
-  if (data.formId === "8") {
+  if (data.formId === FORM_ID_OBJECTIVES) {
     await handleNext90DaysActions(userEmail, payload);
 
     const targetFigure = payload?.Pillar2Operations?.Target ?? null;
@@ -146,7 +147,7 @@ export async function cognitoSubmissionHandler(payload: any) {
     }
   }
 
-  if (data.formId === "41") {
+  if (data.formId === FORM_ID_CASH_FLOW) {
     await handleCashFlow(userEmail, payload);
     await handleFinancialMetrics(userEmail, payload);
 
@@ -161,7 +162,7 @@ export async function cognitoSubmissionHandler(payload: any) {
     }
   }
 
-  if (data.formId === "25") {
+  if (data.formId === FORM_ID_FINANCIAL) {
     const pl = payload?.ProfitAndLossReport;
     await upsertFinancialMetric(userEmail, "REVENUE", "YEAR", pl?.I9 ?? null, null);
     await handleFinancialBudgets(userEmail, payload);
@@ -177,9 +178,9 @@ export async function cognitoSubmissionHandler(payload: any) {
     // breakEvenRpp doesn't affect percentage calculation — no recalculation needed
   }
 
-  // Only form 29 (Final Step) includes the company logo upload field.
+  // Only the Final Step form includes the company logo upload field.
   // For all other forms we skip the logo handling entirely.
-  if (data.formId === "29") {
+  if (data.formId === FORM_ID_FINAL) {
     const logo = getCompanyLogo(payload);
 
     if (logo?.fileUrl?.startsWith("http")) {

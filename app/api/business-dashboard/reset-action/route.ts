@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { z } from "zod";
+
+const schema = z.object({ id: z.string().min(1) });
 
 export async function PATCH(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -9,10 +12,11 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await req.json();
-  if (!id || typeof id !== "string") {
-    return NextResponse.json({ error: "Missing id" }, { status: 400 });
+  const parsed = schema.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Missing or invalid id" }, { status: 400 });
   }
+  const { id } = parsed.data;
 
   const action = await prisma.ninetyDayAction.findFirst({
     where: { id, userEmail: session.user.email },

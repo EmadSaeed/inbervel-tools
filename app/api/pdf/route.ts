@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    return new Response(`Error: ${message}`, { status: 500 });
+    console.error("pdf generation error:", err);
+    return new Response("An unexpected error occurred.", { status: 500 });
   }
 }

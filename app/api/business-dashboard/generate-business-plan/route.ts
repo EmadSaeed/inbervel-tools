@@ -50,8 +50,7 @@ export async function POST(_req: NextRequest) {
       },
     });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Unknown error";
     console.error("member generate-business-plan error:", err);
-    return new Response(`Error: ${message}`, { status: 500 });
+    return new Response("An unexpected error occurred.", { status: 500 });
   }
 }

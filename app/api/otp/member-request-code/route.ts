@@ -2,12 +2,13 @@
 //
 // Sends a one-time 6-digit passcode to a member's email address.
 // Only emails that exist in the User table with role MEMBER will receive a code.
-// Unknown emails receive a 404 { userNotFound: true } so the frontend can show an inline error.
+// Unknown emails receive a silent { ok: true } — this prevents enumeration of registered members.
 
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
 import nodemailer from "nodemailer";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -33,13 +34,24 @@ export async function POST(req: NextRequest) {
 
   const email = normaliseEmail(emailRaw);
 
-  // Only registered MEMBER users receive a code — return 404 for others.
+  // Rate limit: max 5 OTP requests per email per 10-minute window.
+  const rl = checkRateLimit(`member-otp:${email}`);
+  if (!rl.allowed) {
+    const retryAfterSec = Math.ceil(rl.retryAfterMs / 1000);
+    return NextResponse.json(
+      { error: "Too many requests. Please wait before requesting another code." },
+      { status: 429, headers: { "Retry-After": String(retryAfterSec) } },
+    );
+  }
+
+  // Only registered MEMBER users receive a code. Return a generic ok response
+  // for unknown emails so callers cannot enumerate which addresses are registered.
   const member = await prisma.user.findUnique({
     where: { email },
     select: { role: true },
   });
   if (!member || member.role !== "MEMBER") {
-    return NextResponse.json({ userNotFound: true }, { status: 404 });
+    return NextResponse.json({ ok: true }, { status: 200 });
   }
 
   try {
@@ -128,8 +140,8 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error("[member-request-code]", err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : String(err) },
-      { status: 500 }
+      { error: "An unexpected error occurred." },
+      { status: 500 },
     );
   }
 
