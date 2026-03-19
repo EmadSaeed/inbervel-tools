@@ -50,6 +50,14 @@ export async function GET(req: NextRequest) {
     prisma.cognitoForm.findMany({ orderBy: { sortOrder: "asc" } }),
   ]);
 
+  // If the email doesn't exist in either the user table or submission records, return 404.
+  if (!member && submissions.length === 0) {
+    return NextResponse.json(
+      { error: "No client found with that email address." },
+      { status: 404 }
+    );
+  }
+
   // Resolve the company name: prefer the dedicated column (populated by the webhook handler),
   // but fall back to digging it out of the raw JSON payload if the column is empty.
   const companyName =

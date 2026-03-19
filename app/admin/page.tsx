@@ -52,6 +52,7 @@ export default function AdminPage() {
     const [data, setData] = useState<AdminSubmissionsResponse | null>(null);
     const [loading, setLoading] = useState(false);    // true while fetching submissions
     const [generating, setGenerating] = useState(false); // true while generating the PDF
+    const [notFound, setNotFound] = useState(false);
 
 
     // Redirect to login if the session has expired or was never established.
@@ -93,14 +94,20 @@ export default function AdminPage() {
         if (loading || generating) return;
 
         setLoading(true);
+        setNotFound(false);
+        setData(null);
         try {
             const res = await fetch(
                 `/api/admin/submissions?email=${encodeURIComponent(email)}`
             );
 
+            if (res.status === 404) {
+                setNotFound(true);
+                return;
+            }
+
             if (!res.ok) {
                 alert(await res.text());
-                setData(null);
                 return;
             }
 
@@ -191,7 +198,7 @@ export default function AdminPage() {
                     <input
                         type="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => { setEmail(e.target.value); setNotFound(false); }}
                         placeholder="Client Email"
                         className="input"
                         disabled={loading || generating}
@@ -204,6 +211,10 @@ export default function AdminPage() {
                     >
                         {loading ? "Searching..." : "Search for a client"}
                     </button>
+
+                    {notFound && (
+                        <p className="hint">No client found with that email address.</p>
+                    )}
 
                     {data?.companyName && (
                         <div className="companyLine">
