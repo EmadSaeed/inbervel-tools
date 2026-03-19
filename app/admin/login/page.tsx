@@ -152,6 +152,9 @@ export default function AdminLogin() {
                     )}
                 </div>
             </div>
+            <p style={{ position: "fixed", bottom: 16, left: 0, right: 0, fontSize: 12, color: "rgba(255,255,255,0.4)", textAlign: "center", margin: 0 }}>
+                <a href="/business-dashboard/login" style={{ color: "inherit", textDecoration: "underline" }}>Member login</a>
+            </p>
         </div>
     );
 }
