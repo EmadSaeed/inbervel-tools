@@ -11,7 +11,7 @@ export default function AdminLogin() {
     const [email, setEmail] = useState("");
     const [code, setCode] = useState("");
 
-    // `sent` gates the second step — the code input is hidden until a code has been sent.
+    // `sent` gates the second step - the code input is hidden until a code has been sent.
     const [sent, setSent] = useState(false);
 
     // Loading states for the two async actions to prevent double-submission.
@@ -142,9 +142,9 @@ export default function AdminLogin() {
                             </div>
 
                             {cooldown > 0 ? (
-                                <p className=”cooldownHint”>Please wait {cooldown}s before requesting another code.</p>
+                                <p className="cooldownHint">Please wait {cooldown}s before requesting another code.</p>
                             ) : (
-                                <p className=”hint”>
+                                <p className="hint">
                                     Didn&apos;t receive a code? Check spam/junk, then click &quot;Resend passcode&quot; above.
                                 </p>
                             )}
