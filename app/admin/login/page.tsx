@@ -145,8 +145,7 @@ export default function AdminLogin() {
                                 <p className=”cooldownHint”>Please wait {cooldown}s before requesting another code.</p>
                             ) : (
                                 <p className=”hint”>
-                                    Didn’t receive a code? Check spam/junk, then click “Resend passcode”
-                                    above.
+                                    Didn&apos;t receive a code? Check spam/junk, then click &quot;Resend passcode&quot; above.
                                 </p>
                             )}
                         </>
