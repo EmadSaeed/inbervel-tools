@@ -17,6 +17,7 @@ export default function AdminLogin() {
     // Loading states for the two async actions to prevent double-submission.
     const [sending, setSending] = useState(false);
     const [verifying, setVerifying] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     // Cooldown timer (seconds remaining) after sending a code.
     const COOLDOWN_SECONDS = 60;
@@ -46,11 +47,12 @@ export default function AdminLogin() {
             });
 
             if (!res.ok) {
-                const msg = (await res.text()) || `Request failed (${res.status})`;
-                alert(msg);
+                const data = await res.json().catch(() => ({}));
+                setError(data.userNotFound ? "This email is not authorised as an admin." : `Request failed (${res.status})`);
                 return;
             }
 
+            setError(null);
             // Show the code input field now that the email has been sent.
             setSent(true);
             setCooldown(COOLDOWN_SECONDS);
@@ -99,7 +101,7 @@ export default function AdminLogin() {
                             className="input"
                             type="email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={(e) => { setEmail(e.target.value); if (error) setError(null); }}
                             placeholder="Assigned admin email"
                             autoComplete="email"
                         />
@@ -113,6 +115,11 @@ export default function AdminLogin() {
                             {sending ? "Sending..." : cooldown > 0 ? `Resend in ${cooldown}s` : sent ? "Resend passcode" : "Send passcode"}
                         </button>
                     </div>
+                    {error && (
+                        <p style={{ color: "red", fontSize: 13, marginTop: 8, marginBottom: 0, wordBreak: "break-word" }}>
+                            {error}
+                        </p>
+                    )}
 
                     {/* Step 2: Code + verify (only after sent) */}
                     {sent && (

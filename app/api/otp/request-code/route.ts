@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
     select: { email: true },
   });
   if (!allowed) {
-    return NextResponse.json({ ok: true }, { status: 200 });
+    return NextResponse.json({ userNotFound: true }, { status: 404 });
   }
 
   // Generate the OTP and store only its hash in the database.
