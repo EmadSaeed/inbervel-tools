@@ -31,6 +31,7 @@
   align-items: center;
   gap: 16px;
   margin-bottom: 24px;
+  position: relative;
 }
 
 .dashboard__logo {
@@ -60,9 +61,12 @@
   font-size: 24px;
   font-weight: 700;
   margin: 0;
-  flex: 1;
+  position: absolute;
+  left: 0;
+  right: 0;
   text-align: center;
   text-transform: uppercase;
+  pointer-events: none;
 }
 
 /* ─── Stat Cards Row ─────────────────────────────────────────────────────────── */

@@ -2,7 +2,7 @@
 
 import "@/app/admin/login/login.css";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 
@@ -13,6 +13,22 @@ export default function MemberLogin() {
     const [sending, setSending] = useState(false);
     const [verifying, setVerifying] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [userNotFound, setUserNotFound] = useState(false);
+
+    // Cooldown timer (seconds remaining) after sending a code.
+    const COOLDOWN_SECONDS = 60;
+    const [cooldown, setCooldown] = useState(0);
+
+    useEffect(() => {
+        if (cooldown <= 0) return;
+        const id = setInterval(() => {
+            setCooldown((c) => {
+                if (c <= 1) { clearInterval(id); return 0; }
+                return c - 1;
+            });
+        }, 1000);
+        return () => clearInterval(id);
+    }, [cooldown]);
 
     async function sendCode() {
         setSending(true);
@@ -24,12 +40,19 @@ export default function MemberLogin() {
             });
 
             if (!res.ok) {
-                const msg = (await res.text()) || `Request failed (${res.status})`;
-                alert(msg);
+                const data = await res.json().catch(() => ({}));
+                if (data.userNotFound) {
+                    setUserNotFound(true);
+                    setError("User does not exist.");
+                } else {
+                    setError(`Request failed (${res.status})`);
+                }
                 return;
             }
 
+            setUserNotFound(false);
             setSent(true);
+            setCooldown(COOLDOWN_SECONDS);
         } finally {
             setSending(false);
         }
@@ -69,35 +92,34 @@ export default function MemberLogin() {
                 <div className="loginCard">
                     <h1 className="loginTitle">Member Login</h1>
                     <p className="loginSub">
-                        To access your Business Dashboard, you need to complete at least one of Your Business Tools below.
+                        <span style={userNotFound ? { color: "red" } : undefined}>To access your Business Dashboard, you need to complete at least one of Your Business Tools below.</span>
                         <br />Once you do, you can log in here with the same email you used for the tool, and we will send you a 6-digit passcode to access your dashboard.
                     </p>
-                    {error && (
-                        <p style={{ color: "red", fontSize: 13, marginBottom: 12, wordBreak: "break-word" }}>
-                            {error}
-                        </p>
-                    )}
-
-
                     <label className="fieldLabel">Email</label>
                     <div className="row">
                         <input
                             className="input"
                             type="email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={(e) => { setEmail(e.target.value); if (userNotFound) { setUserNotFound(false); setError(null); } }}
+                            onKeyDown={(e) => { if (e.key === "Enter" && emailOk && !sending && cooldown === 0) sendCode(); }}
                             placeholder="Your email address"
                             autoComplete="email"
                         />
                         <button
                             className="btn btnPrimary"
                             onClick={sendCode}
-                            disabled={!emailOk || sending}
+                            disabled={!emailOk || sending || cooldown > 0}
                             type="button"
                         >
-                            {sending ? "Sending..." : "Send passcode"}
+                            {sending ? "Sending..." : cooldown > 0 ? `Resend in ${cooldown}s` : sent ? "Resend passcode" : "Send passcode"}
                         </button>
                     </div>
+                    {error && (
+                        <p style={{ color: "red", fontSize: 13, marginTop: 8, marginBottom: 0, wordBreak: "break-word" }}>
+                            {error}
+                        </p>
+                    )}
 
                     {sent && (
                         <>
@@ -122,9 +144,13 @@ export default function MemberLogin() {
                                     {verifying ? "Verifying..." : "Verify & sign in"}
                                 </button>
                             </div>
-                            <p className="hint">
-                                Didn&apos;t receive a code? Check spam/junk, then click &quot;Send passcode&quot; again.
-                            </p>
+                            {cooldown > 0 ? (
+                                <p className="cooldownHint">Please wait {cooldown}s before requesting another code.</p>
+                            ) : (
+                                <p className="hint">
+                                    The passcode may take up to 10 minutes to arrive. Didn&apos;t receive a code? Check spam/junk, then click &quot;Resend passcode&quot; above.
+                                </p>
+                            )}
                         </>
                     )}
                 </div>

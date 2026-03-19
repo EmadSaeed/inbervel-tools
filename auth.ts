@@ -15,7 +15,7 @@ function normaliseEmail(v: string) {
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge: 60 * 60 * 24 * 365,
     updateAge: 15 * 60,
   },
 

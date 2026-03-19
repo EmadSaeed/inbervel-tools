@@ -2,7 +2,7 @@
 
 import "./login.css";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 
@@ -17,6 +17,21 @@ export default function AdminLogin() {
     // Loading states for the two async actions to prevent double-submission.
     const [sending, setSending] = useState(false);
     const [verifying, setVerifying] = useState(false);
+
+    // Cooldown timer (seconds remaining) after sending a code.
+    const COOLDOWN_SECONDS = 60;
+    const [cooldown, setCooldown] = useState(0);
+
+    useEffect(() => {
+        if (cooldown <= 0) return;
+        const id = setInterval(() => {
+            setCooldown((c) => {
+                if (c <= 1) { clearInterval(id); return 0; }
+                return c - 1;
+            });
+        }, 1000);
+        return () => clearInterval(id);
+    }, [cooldown]);
 
     // Step 1: request a one-time code for the entered email address.
     // The API returns { ok: true } for both known and unknown emails (to avoid
@@ -38,6 +53,7 @@ export default function AdminLogin() {
 
             // Show the code input field now that the email has been sent.
             setSent(true);
+            setCooldown(COOLDOWN_SECONDS);
         } finally {
             setSending(false);
         }
@@ -91,10 +107,10 @@ export default function AdminLogin() {
                         <button
                             className="btn btnPrimary"
                             onClick={sendCode}
-                            disabled={!emailOk || sending}
+                            disabled={!emailOk || sending || cooldown > 0}
                             type="button"
                         >
-                            {sending ? "Sending..." : "Send passcode"}
+                            {sending ? "Sending..." : cooldown > 0 ? `Resend in ${cooldown}s` : sent ? "Resend passcode" : "Send passcode"}
                         </button>
                     </div>
 
@@ -125,10 +141,14 @@ export default function AdminLogin() {
                                 </button>
                             </div>
 
-                            <p className="hint">
-                                Didn’t receive a code? Check spam/junk, then click “Send passcode”
-                                again.
-                            </p>
+                            {cooldown > 0 ? (
+                                <p className=”cooldownHint”>Please wait {cooldown}s before requesting another code.</p>
+                            ) : (
+                                <p className=”hint”>
+                                    Didn’t receive a code? Check spam/junk, then click “Resend passcode”
+                                    above.
+                                </p>
+                            )}
                         </>
                     )}
                 </div>

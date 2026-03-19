@@ -129,6 +129,12 @@
     color: rgba(0, 0, 0, 0.55);
 }
 
+.cooldownHint {
+    margin-top: 8px;
+    font-size: 13px;
+    color: rgba(160, 100, 0, 0.85);
+}
+
 /* Small screens */
 @media (max-width: 420px) {
     .loginCard {
