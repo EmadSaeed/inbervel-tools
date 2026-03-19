@@ -80,12 +80,21 @@ export async function buildBusinessPlanTemplateDto(
   const userEmail = userEmailRaw.toLowerCase().trim();
   if (!userEmail) throw new Error("Missing email");
 
+  // Only these 10 keys map to fields in the Handlebars template / DTO.
+  // Extra forms in the DB (e.g. Form 41 — Cash Flow) are intentionally excluded
+  // so they never block PDF generation.
+  const PDF_FORM_KEYS = new Set([
+    "final", "offerings", "advantage", "sectors", "market",
+    "ratesCard", "swot", "objectives", "financial", "risks",
+  ]);
+
   // Load form definitions from DB so form IDs can be updated without redeploying.
   const forms = await prisma.cognitoForm.findMany({ orderBy: { sortOrder: "asc" } });
   if (!forms.length) throw new Error("CognitoForm table is empty — run seed first");
 
-  const formByKey = Object.fromEntries(forms.map((f) => [f.key, f.formId]));
-  const requiredFormIds = forms.map((f) => f.formId);
+  const pdfForms = forms.filter((f) => PDF_FORM_KEYS.has(f.key));
+  const formByKey = Object.fromEntries(pdfForms.map((f) => [f.key, f.formId]));
+  const requiredFormIds = pdfForms.map((f) => f.formId);
 
   // Fetch only the columns we need for PDF generation (avoids loading unnecessary data).
   const rows = await prisma.cognitoSubmission.findMany({
