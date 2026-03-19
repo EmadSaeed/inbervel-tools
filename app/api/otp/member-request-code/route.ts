@@ -2,7 +2,7 @@
 //
 // Sends a one-time 6-digit passcode to a member's email address.
 // Only emails that exist in the User table with role MEMBER will receive a code.
-// Unknown emails receive a silent { ok: true } — this prevents enumeration of registered members.
+// Unknown emails receive a 404 { userNotFound: true } so the frontend can show an inline error.
 
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
@@ -44,14 +44,14 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Only registered MEMBER users receive a code. Return a generic ok response
-  // for unknown emails so callers cannot enumerate which addresses are registered.
+  // Only registered MEMBER users receive a code — return userNotFound for others
+  // so the login UI can show an inline error.
   const member = await prisma.user.findUnique({
     where: { email },
     select: { role: true },
   });
   if (!member || member.role !== "MEMBER") {
-    return NextResponse.json({ ok: true }, { status: 200 });
+    return NextResponse.json({ userNotFound: true }, { status: 404 });
   }
 
   try {
