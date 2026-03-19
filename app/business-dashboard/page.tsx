@@ -81,7 +81,14 @@ export default async function BusinessDashboardPage() {
     };
   });
 
-  const readyToGenerate = actionTools.length > 0 && actionTools.every((t) => t.status === "COMPLETE");
+  const PDF_FORM_KEYS = new Set([
+    "final", "offerings", "advantage", "sectors", "market",
+    "ratesCard", "swot", "objectives", "financial", "risks",
+  ]);
+  const pdfFormIds = new Set(forms.filter((f) => PDF_FORM_KEYS.has(f.key)).map((f) => f.formId));
+  const readyToGenerate = pdfFormIds.size > 0 && actionTools
+    .filter((t) => pdfFormIds.has(t.formId))
+    .every((t) => t.status === "COMPLETE");
 
   // Fetch the private company logo server-side and convert to a base64 data URL
   // so the browser can display it without hitting the private blob directly.
