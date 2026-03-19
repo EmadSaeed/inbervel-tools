@@ -102,6 +102,7 @@ export default function AdminLogin() {
                             type="email"
                             value={email}
                             onChange={(e) => { setEmail(e.target.value); if (error) setError(null); }}
+                            onKeyDown={(e) => { if (e.key === "Enter" && emailOk && !sending && cooldown === 0) sendCode(); }}
                             placeholder="Assigned admin email"
                             autoComplete="email"
                         />
@@ -152,7 +153,7 @@ export default function AdminLogin() {
                                 <p className="cooldownHint">Please wait {cooldown}s before requesting another code.</p>
                             ) : (
                                 <p className="hint">
-                                    Didn&apos;t receive a code? Check spam/junk, then click &quot;Resend passcode&quot; above.
+                                    The passcode may take up to 10 minutes to arrive. Didn&apos;t receive a code? Check spam/junk, then click &quot;Resend passcode&quot; above.
                                 </p>
                             )}
                         </>
