@@ -77,8 +77,14 @@ export async function GET(req: NextRequest) {
     present: presentFormIds.has(f.formId),
   }));
 
-  // The PDF can only be generated once every required form has been submitted.
-  const readyToGenerate = required.every((r) => r.present);
+  // Only these 10 keys are needed for PDF generation — extra DB forms (e.g. Form 41) are excluded.
+  const PDF_FORM_KEYS = new Set([
+    "final", "offerings", "advantage", "sectors", "market",
+    "ratesCard", "swot", "objectives", "financial", "risks",
+  ]);
+  const readyToGenerate = required
+    .filter((r) => PDF_FORM_KEYS.has(r.key))
+    .every((r) => r.present);
 
   // Strip the payload column before sending to the client — it can be large
   // and the UI only needs the metadata (formId, title, dates).
