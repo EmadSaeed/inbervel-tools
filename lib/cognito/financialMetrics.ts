@@ -1,5 +1,10 @@
 import { prisma } from "@/lib/prisma";
 
+/**
+ * Upserts a single financial metric row identified by (userEmail, type, period).
+ * - If the row exists: updates value/percentage/budget (only non-null fields) and refreshes recordedAt.
+ * - If no row exists: creates one (requires a non-null value).
+ */
 export async function upsertFinancialMetric(
   userEmail: string,
   type: "GROSS_PROFIT" | "REVENUE" | "NET_PROFIT",
@@ -30,6 +35,7 @@ export async function upsertFinancialMetric(
   }
 }
 
+/** Recalculates gross profit percentage: (value / budget) × 100. Skips if budget is null or zero. */
 export async function recalculateGrossProfitPercentage(userEmail: string, period: "MONTH" | "YEAR") {
   const metric = await prisma.financialMetric.findFirst({
     where: { userEmail, type: "GROSS_PROFIT", period },
@@ -49,6 +55,7 @@ export async function recalculateGrossProfitPercentage(userEmail: string, period
   });
 }
 
+/** Recalculates revenue percentage: (value / budget) × 100. Skips if budget is null or zero. */
 export async function recalculateRevenuePercentage(userEmail: string, period: "MONTH" | "YEAR") {
   const revenue = await prisma.financialMetric.findFirst({ where: { userEmail, type: "REVENUE", period } });
   if (!revenue || revenue.budget === null) return;
@@ -65,6 +72,7 @@ export async function recalculateRevenuePercentage(userEmail: string, period: "M
   });
 }
 
+/** Recalculates net profit percentage: (value / budget) × 100. Skips if budget is null or zero. */
 export async function recalculateNetProfitPercentage(userEmail: string, period: "MONTH" | "YEAR") {
   const netProfit = await prisma.financialMetric.findFirst({ where: { userEmail, type: "NET_PROFIT", period } });
   if (!netProfit || netProfit.budget === null) return;
@@ -81,6 +89,7 @@ export async function recalculateNetProfitPercentage(userEmail: string, period: 
   });
 }
 
+/** Recalculates all six metric percentages (3 types × 2 periods) for a given user. */
 async function recalculateAllPercentages(userEmail: string) {
   await recalculateGrossProfitPercentage(userEmail, "MONTH");
   await recalculateGrossProfitPercentage(userEmail, "YEAR");
@@ -90,7 +99,14 @@ async function recalculateAllPercentages(userEmail: string) {
   await recalculateNetProfitPercentage(userEmail, "YEAR");
 }
 
-// Called by form 41 — upserts values from ProfitAndLoss + FinancialTargets reports.
+/**
+ * Called by form 41 (FORM_ID_CASH_FLOW).
+ * Extracts actual financial values from the Cognito payload and upserts them:
+ *   - Gross Profit (MONTH/YEAR): ProfitAndLossReport.D30
+ *   - Net Profit (MONTH/YEAR):   ProfitAndLossReport.D57
+ *   - Revenue (MONTH/YEAR):      FinancialTargetsReport.B8
+ * Then recalculates all vs-budget percentages.
+ */
 export async function handleFinancialMetrics(userEmail: string, payload: any) {
   const pl = payload?.ProfitAndLossReport;
   const ft = payload?.FinancialTargetsReport;
@@ -107,7 +123,14 @@ export async function handleFinancialMetrics(userEmail: string, payload: any) {
   await recalculateAllPercentages(userEmail);
 }
 
-// Called by form 25 — upserts budget figures from ProfitAndLoss report.
+/**
+ * Called by form 25 (FORM_ID_FINANCIAL).
+ * Extracts budget/target figures from the Cognito payload and upserts them:
+ *   - Gross Profit budget (MONTH/YEAR): ProfitAndLossReport.H28 / I28
+ *   - Revenue budget (MONTH/YEAR):      ProfitAndLossReport.H9  / I9
+ *   - Net Profit budget (MONTH/YEAR):   ProfitAndLossReport.H52 / I52
+ * Then recalculates all vs-budget percentages.
+ */
 export async function handleFinancialBudgets(userEmail: string, payload: any) {
   const pl = payload?.ProfitAndLossReport;
 

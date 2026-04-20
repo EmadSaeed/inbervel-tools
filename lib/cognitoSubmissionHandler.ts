@@ -4,6 +4,7 @@ import { extractFromCognito, getString, normaliseEmail, parseName, getCompanyLog
 import { uploadRemoteFileToBlob, uploadLogoToBlob } from "@/lib/cognito/blobUpload";
 import { handleCashFlow } from "@/lib/cognito/cashFlow";
 import { handleFinancialMetrics, handleFinancialBudgets, upsertFinancialMetric } from "@/lib/cognito/financialMetrics";
+import { handleFinancialPeriod } from "@/lib/cognito/financialPeriods";
 import { recalculateProductivityPercentage } from "@/lib/cognito/productivity";
 import { FORM_ID_OBJECTIVES, FORM_ID_FINAL, FORM_ID_FINANCIAL, FORM_ID_CASH_FLOW } from "@/lib/forms/formIds";
 
@@ -150,6 +151,7 @@ export async function cognitoSubmissionHandler(payload: any) {
   if (data.formId === FORM_ID_CASH_FLOW) {
     await handleCashFlow(userEmail, payload);
     await handleFinancialMetrics(userEmail, payload);
+    await handleFinancialPeriod(userEmail, payload);
 
     const theMonthRpp = payload?.FinancialTargetsReport?.B10 ?? null;
     if (theMonthRpp !== null) {

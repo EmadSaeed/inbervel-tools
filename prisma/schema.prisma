@@ -83,11 +83,12 @@ model User {
     accounts Account[]
     sessions Session[]
 
-    financialMetrics    FinancialMetric[]
-    cashFlows           CashFlow[]
-    productivityRecords ProductivityRecord[]
-    ninetyDayActions    NinetyDayAction[]
-    actionTools         ActionTool[]
+    financialMetrics        FinancialMetric[]
+    financialPeriodRecords  FinancialPeriodRecord[]
+    cashFlows               CashFlow[]
+    productivityRecords     ProductivityRecord[]
+    ninetyDayActions        NinetyDayAction[]
+    actionTools             ActionTool[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -204,6 +205,41 @@ model ActionTool {
 
     @@index([userEmail])
     @@unique([userEmail, formId])
+}
+
+model FinancialPeriodRecord {
+    id            String   @id @default(cuid())
+    userEmail     String
+    cycleNumber   Int      @default(1)
+    periodNumber  Int      // 1-12
+
+    // Individual month values
+    grossProfit   Decimal
+    revenue       Decimal
+    netProfit     Decimal
+
+    // Accumulated YTD (sum of P1..Pn in same cycle)
+    grossProfitAccum Decimal
+    revenueAccum     Decimal
+    netProfitAccum   Decimal
+
+    // Budget targets: periodNumber × monthly budget
+    grossProfitTarget Decimal?
+    revenueTarget     Decimal?
+    netProfitTarget   Decimal?
+
+    // Percentage vs target (accum / target * 100)
+    grossProfitPct Float?
+    revenuePct     Float?
+    netProfitPct   Float?
+
+    currency   String   @default("GBP")
+    recordedAt DateTime @default(now())
+
+    user User @relation(fields: [userEmail], references: [email])
+
+    @@unique([userEmail, cycleNumber, periodNumber])
+    @@index([userEmail])
 }
 
 model CognitoForm {
