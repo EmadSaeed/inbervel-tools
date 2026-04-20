@@ -12,17 +12,6 @@ enum UserRole {
     MEMBER
 }
 
-enum FinancialMetricType {
-    GROSS_PROFIT
-    REVENUE
-    NET_PROFIT
-}
-
-enum FinancialPeriod {
-    MONTH
-    YEAR
-}
-
 enum ActionCategory {
     FINANCE
     OPERATIONS
@@ -83,7 +72,6 @@ model User {
     accounts Account[]
     sessions Session[]
 
-    financialMetrics        FinancialMetric[]
     financialPeriodRecords  FinancialPeriodRecord[]
     cashFlows               CashFlow[]
     productivityRecords     ProductivityRecord[]
@@ -128,22 +116,6 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
-}
-
-model FinancialMetric {
-    id         String              @id @default(cuid())
-    userEmail  String
-    type       FinancialMetricType
-    period     FinancialPeriod
-    value      Decimal
-    percentage Float?
-    budget     Decimal?
-    currency   String              @default("GBP")
-    recordedAt DateTime
-
-    user User @relation(fields: [userEmail], references: [email])
-
-    @@index([userEmail])
 }
 
 model CashFlow {
@@ -214,24 +186,26 @@ model FinancialPeriodRecord {
     periodNumber  Int      // 1-12
 
     // Individual month values
-    grossProfit   Decimal
-    revenue       Decimal
-    netProfit     Decimal
+    MonthGrossProfit         Decimal
+    MonthRevenue             Decimal
+    MonthNetProfit           Decimal
+    MonthGrossProfitBudget   Decimal
+    MonthRevenueBudget       Decimal
+    MonthNetProfitBudget     Decimal
+    MonthNetProfitPct        Float?
+    MonthRevenuePct          Float?
+    MonthGrossProfitPct      Float?
 
     // Accumulated YTD (sum of P1..Pn in same cycle)
-    grossProfitAccum Decimal
-    revenueAccum     Decimal
-    netProfitAccum   Decimal
-
-    // Budget targets: periodNumber × monthly budget
-    grossProfitTarget Decimal?
-    revenueTarget     Decimal?
-    netProfitTarget   Decimal?
-
-    // Percentage vs target (accum / target * 100)
-    grossProfitPct Float?
-    revenuePct     Float?
-    netProfitPct   Float?
+    YTDGrossProfit           Decimal
+    YTDRevenue               Decimal
+    YTDNetProfit             Decimal
+    YTDNetProfitBudget       Decimal
+    YTDRevenueBudget         Decimal
+    YTDGrossProfitBudget     Decimal
+    YTDNetProfitPct          Float?
+    YTDRevenuePct            Float?
+    YTDGrossProfitPct        Float?
 
     currency   String   @default("GBP")
     recordedAt DateTime @default(now())

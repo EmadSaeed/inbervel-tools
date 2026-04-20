@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/prisma";
 
+const pct = (num: unknown, denom: number): number | null =>
+  denom > 0 ? (Number(num) / denom) * 100 : null;
+
 /**
  * Called by form 41 (FORM_ID_CASH_FLOW) — creates/updates a period record
  * in the user's 12-month financial cycle.
@@ -14,13 +17,11 @@ export async function handleFinancialPeriod(userEmail: string, payload: any) {
 
   console.log("[financialPeriod] values:", { grossProfit, netProfit, revenue, Month_Value: payload?.Month_Value, Year: payload?.Year });
 
-  // Can't create a period record without at least one value
   if (grossProfit === null && netProfit === null && revenue === null) {
     console.log("[financialPeriod] skipped: no financial values found in payload");
     return;
   }
 
-  // Use form payload Month_Value (1-12) and Year to determine the submission period
   const month = payload?.Month_Value as number | undefined;
   const year = payload?.Year ? Number(payload.Year) : undefined;
   if (!month || !year) {
@@ -30,12 +31,10 @@ export async function handleFinancialPeriod(userEmail: string, payload: any) {
 
   const { cycleNumber, periodNumber, gapPeriods } = await resolveNextPeriod(userEmail, month, year);
 
-  // Fill any missed months with zero values
   for (const gap of gapPeriods) {
     await createPeriodRecord(userEmail, gap.cycleNumber, gap.periodNumber, 0, 0, 0, gap.month, gap.year);
   }
 
-  // Create/update the current period with actual values
   await createPeriodRecord(
     userEmail,
     cycleNumber,
@@ -58,64 +57,61 @@ async function createPeriodRecord(
   month: number,
   year: number,
 ) {
-  // Compute accumulated values from prior periods in this cycle
+  // Prior records in the same cycle (used for YTD accumulation and budget inheritance)
   const priorRecords = await prisma.financialPeriodRecord.findMany({
     where: { userEmail, cycleNumber, periodNumber: { lt: periodNumber } },
-    select: { grossProfit: true, revenue: true, netProfit: true },
+    orderBy: { periodNumber: "desc" },
+    select: {
+      MonthGrossProfit: true,
+      MonthRevenue: true,
+      MonthNetProfit: true,
+      MonthGrossProfitBudget: true,
+      MonthRevenueBudget: true,
+      MonthNetProfitBudget: true,
+    },
   });
 
-  const grossProfitAccum = priorRecords.reduce((sum, r) => sum + Number(r.grossProfit), 0) + grossProfit;
-  const revenueAccum = priorRecords.reduce((sum, r) => sum + Number(r.revenue), 0) + revenue;
-  const netProfitAccum = priorRecords.reduce((sum, r) => sum + Number(r.netProfit), 0) + netProfit;
+  const YTDGrossProfit = priorRecords.reduce((s, r) => s + Number(r.MonthGrossProfit), 0) + grossProfit;
+  const YTDRevenue     = priorRecords.reduce((s, r) => s + Number(r.MonthRevenue),     0) + revenue;
+  const YTDNetProfit   = priorRecords.reduce((s, r) => s + Number(r.MonthNetProfit),   0) + netProfit;
 
-  // Compute targets: periodNumber × monthly budget from FinancialMetric
-  const targets = await computeTargets(userEmail, periodNumber);
+  const prior = priorRecords[0]; // most recent prior period
+  const gpBudget = prior ? Number(prior.MonthGrossProfitBudget) : 0;
+  const revBudget = prior ? Number(prior.MonthRevenueBudget) : 0;
+  const npBudget = prior ? Number(prior.MonthNetProfitBudget) : 0;
 
-  // Compute percentages
-  const grossProfitPct = targets.grossProfitTarget && targets.grossProfitTarget !== 0
-    ? (grossProfitAccum / targets.grossProfitTarget) * 100 : null;
-  const revenuePct = targets.revenueTarget && targets.revenueTarget !== 0
-    ? (revenueAccum / targets.revenueTarget) * 100 : null;
-  const netProfitPct = targets.netProfitTarget && targets.netProfitTarget !== 0
-    ? (netProfitAccum / targets.netProfitTarget) * 100 : null;
+  const YTDGpBudget = gpBudget * periodNumber;
+  const YTDRevBudget = revBudget * periodNumber;
+  const YTDNpBudget = npBudget * periodNumber;
+
+  const data = {
+    MonthGrossProfit: grossProfit,
+    MonthRevenue: revenue,
+    MonthNetProfit: netProfit,
+    MonthGrossProfitBudget: gpBudget,
+    MonthRevenueBudget: revBudget,
+    MonthNetProfitBudget: npBudget,
+    MonthGrossProfitPct: pct(grossProfit, gpBudget),
+    MonthRevenuePct:     pct(revenue,     revBudget),
+    MonthNetProfitPct:   pct(netProfit,   npBudget),
+    YTDGrossProfit,
+    YTDRevenue,
+    YTDNetProfit,
+    YTDGrossProfitBudget: YTDGpBudget,
+    YTDRevenueBudget: YTDRevBudget,
+    YTDNetProfitBudget: YTDNpBudget,
+    YTDGrossProfitPct: pct(YTDGrossProfit, YTDGpBudget),
+    YTDRevenuePct:     pct(YTDRevenue,     YTDRevBudget),
+    YTDNetProfitPct:   pct(YTDNetProfit,   YTDNpBudget),
+    recordedAt: new Date(year, month - 1, 1),
+  };
 
   await prisma.financialPeriodRecord.upsert({
     where: {
       userEmail_cycleNumber_periodNumber: { userEmail, cycleNumber, periodNumber },
     },
-    create: {
-      userEmail,
-      cycleNumber,
-      periodNumber,
-      grossProfit,
-      revenue,
-      netProfit,
-      grossProfitAccum,
-      revenueAccum,
-      netProfitAccum,
-      grossProfitTarget: targets.grossProfitTarget,
-      revenueTarget: targets.revenueTarget,
-      netProfitTarget: targets.netProfitTarget,
-      grossProfitPct,
-      revenuePct,
-      netProfitPct,
-      recordedAt: new Date(year, month - 1, 1),
-    },
-    update: {
-      grossProfit,
-      revenue,
-      netProfit,
-      grossProfitAccum,
-      revenueAccum,
-      netProfitAccum,
-      grossProfitTarget: targets.grossProfitTarget,
-      revenueTarget: targets.revenueTarget,
-      netProfitTarget: targets.netProfitTarget,
-      grossProfitPct,
-      revenuePct,
-      netProfitPct,
-      recordedAt: new Date(year, month - 1, 1),
-    },
+    create: { userEmail, cycleNumber, periodNumber, ...data },
+    update: data,
   });
 }
 
@@ -137,6 +133,15 @@ async function resolveNextPeriod(userEmail: string, month: number, year: number)
     return { cycleNumber: 1, periodNumber: 1, gapPeriods: [] };
   }
 
+  // Budget-only seed (no Month values written yet) → overwrite it in place
+  const isSeed =
+    Number(latest.MonthGrossProfit) === 0 &&
+    Number(latest.MonthRevenue) === 0 &&
+    Number(latest.MonthNetProfit) === 0;
+  if (isSeed) {
+    return { cycleNumber: latest.cycleNumber, periodNumber: latest.periodNumber, gapPeriods: [] };
+  }
+
   const lastDate = new Date(latest.recordedAt);
   const lastMonth = lastDate.getMonth() + 1; // 1-based
   const lastYear = lastDate.getFullYear();
@@ -146,7 +151,6 @@ async function resolveNextPeriod(userEmail: string, month: number, year: number)
     return { cycleNumber: latest.cycleNumber, periodNumber: latest.periodNumber, gapPeriods: [] };
   }
 
-  // Calculate months elapsed since last record
   const monthsElapsed = (year - lastYear) * 12 + (month - lastMonth);
 
   const gapPeriods: { cycleNumber: number; periodNumber: number; month: number; year: number }[] = [];
@@ -155,7 +159,6 @@ async function resolveNextPeriod(userEmail: string, month: number, year: number)
   let gapMonth = lastMonth;
   let gapYear = lastYear;
 
-  // Fill gaps for missed months (monthsElapsed - 1 gaps, then the actual new period)
   for (let i = 1; i < monthsElapsed; i++) {
     currentPeriod++;
     if (currentPeriod > 12) {
@@ -170,7 +173,6 @@ async function resolveNextPeriod(userEmail: string, month: number, year: number)
     gapPeriods.push({ cycleNumber: currentCycle, periodNumber: currentPeriod, month: gapMonth, year: gapYear });
   }
 
-  // The actual new period
   currentPeriod++;
   if (currentPeriod > 12) {
     currentCycle++;
@@ -181,26 +183,83 @@ async function resolveNextPeriod(userEmail: string, month: number, year: number)
 }
 
 /**
- * Fetches monthly budgets from FinancialMetric and scales by periodNumber.
+ * Called by form 25 (FORM_ID_FINANCIAL) — writes monthly budgets into the
+ * user's current cycle of FinancialPeriodRecord rows, recomputing YTD budgets
+ * and all six percentage fields for each affected record.
+ *
+ * If the user has no records yet, creates a P1/cycle1 seed (zero values, budgets only).
  */
-async function computeTargets(userEmail: string, periodNumber: number) {
-  const metrics = await prisma.financialMetric.findMany({
-    where: { userEmail, period: "MONTH" },
-    select: { type: true, budget: true },
+export async function handleFinancialBudgets(userEmail: string, payload: any) {
+  const pl = payload?.ProfitAndLossReport;
+  const gpBudget = Number(pl?.H28 ?? 0);
+  const revBudget = Number(pl?.H9 ?? 0);
+  const npBudget = Number(pl?.H52 ?? 0);
+
+  if (!gpBudget && !revBudget && !npBudget) {
+    console.log("[financialBudgets] skipped: no budget values in payload");
+    return;
+  }
+
+  const latest = await prisma.financialPeriodRecord.findFirst({
+    where: { userEmail },
+    orderBy: [{ cycleNumber: "desc" }, { periodNumber: "desc" }],
   });
 
-  const getMonthlyBudget = (type: string) => {
-    const m = metrics.find((r) => r.type === type);
-    return m?.budget ? Number(m.budget) : null;
-  };
+  if (!latest) {
+    await prisma.financialPeriodRecord.create({
+      data: {
+        userEmail,
+        cycleNumber: 1,
+        periodNumber: 1,
+        MonthGrossProfit: 0,
+        MonthRevenue: 0,
+        MonthNetProfit: 0,
+        MonthGrossProfitBudget: gpBudget,
+        MonthRevenueBudget: revBudget,
+        MonthNetProfitBudget: npBudget,
+        MonthGrossProfitPct: null,
+        MonthRevenuePct: null,
+        MonthNetProfitPct: null,
+        YTDGrossProfit: 0,
+        YTDRevenue: 0,
+        YTDNetProfit: 0,
+        YTDGrossProfitBudget: gpBudget,
+        YTDRevenueBudget: revBudget,
+        YTDNetProfitBudget: npBudget,
+        YTDGrossProfitPct: null,
+        YTDRevenuePct: null,
+        YTDNetProfitPct: null,
+        recordedAt: new Date(),
+      },
+    });
+    return;
+  }
 
-  const gpBudget = getMonthlyBudget("GROSS_PROFIT");
-  const revBudget = getMonthlyBudget("REVENUE");
-  const npBudget = getMonthlyBudget("NET_PROFIT");
+  const records = await prisma.financialPeriodRecord.findMany({
+    where: { userEmail, cycleNumber: latest.cycleNumber },
+    orderBy: { periodNumber: "asc" },
+  });
 
-  return {
-    grossProfitTarget: gpBudget ? gpBudget * periodNumber : null,
-    revenueTarget: revBudget ? revBudget * periodNumber : null,
-    netProfitTarget: npBudget ? npBudget * periodNumber : null,
-  };
+  for (const r of records) {
+    const ytdGp = gpBudget * r.periodNumber;
+    const ytdRev = revBudget * r.periodNumber;
+    const ytdNp = npBudget * r.periodNumber;
+    await prisma.financialPeriodRecord.update({
+      where: { id: r.id },
+      data: {
+        MonthGrossProfitBudget: gpBudget,
+        MonthRevenueBudget: revBudget,
+        MonthNetProfitBudget: npBudget,
+        YTDGrossProfitBudget: ytdGp,
+        YTDRevenueBudget: ytdRev,
+        YTDNetProfitBudget: ytdNp,
+        MonthGrossProfitPct: pct(r.MonthGrossProfit, gpBudget),
+        MonthRevenuePct:     pct(r.MonthRevenue,     revBudget),
+        MonthNetProfitPct:   pct(r.MonthNetProfit,   npBudget),
+        YTDGrossProfitPct:   pct(r.YTDGrossProfit, ytdGp),
+        YTDRevenuePct:       pct(r.YTDRevenue,     ytdRev),
+        YTDNetProfitPct:     pct(r.YTDNetProfit,   ytdNp),
+      },
+    });
+  }
 }

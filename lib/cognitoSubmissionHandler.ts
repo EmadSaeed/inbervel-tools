@@ -3,8 +3,7 @@ import { handleNext90DaysActions } from "@/lib/handleNext90DaysActions";
 import { extractFromCognito, getString, normaliseEmail, parseName, getCompanyLogo, getLatestDocumentUrl, safeKeyPart } from "@/lib/cognito/utils";
 import { uploadRemoteFileToBlob, uploadLogoToBlob } from "@/lib/cognito/blobUpload";
 import { handleCashFlow } from "@/lib/cognito/cashFlow";
-import { handleFinancialMetrics, handleFinancialBudgets, upsertFinancialMetric } from "@/lib/cognito/financialMetrics";
-import { handleFinancialPeriod } from "@/lib/cognito/financialPeriods";
+import { handleFinancialPeriod, handleFinancialBudgets } from "@/lib/cognito/financialPeriods";
 import { recalculateProductivityPercentage } from "@/lib/cognito/productivity";
 import { FORM_ID_OBJECTIVES, FORM_ID_FINAL, FORM_ID_FINANCIAL, FORM_ID_CASH_FLOW } from "@/lib/forms/formIds";
 
@@ -150,7 +149,6 @@ export async function cognitoSubmissionHandler(payload: any) {
 
   if (data.formId === FORM_ID_CASH_FLOW) {
     await handleCashFlow(userEmail, payload);
-    await handleFinancialMetrics(userEmail, payload);
     await handleFinancialPeriod(userEmail, payload);
 
     const theMonthRpp = payload?.FinancialTargetsReport?.B10 ?? null;
@@ -165,8 +163,6 @@ export async function cognitoSubmissionHandler(payload: any) {
   }
 
   if (data.formId === FORM_ID_FINANCIAL) {
-    const pl = payload?.ProfitAndLossReport;
-    await upsertFinancialMetric(userEmail, "REVENUE", "YEAR", pl?.I9 ?? null, null);
     await handleFinancialBudgets(userEmail, payload);
 
     const breakEvenRpp = payload?.FinancialReport?.B14 ?? null;

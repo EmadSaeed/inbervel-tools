@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { getLatestFinancialSnapshot } from "@/lib/cognito/financialMetrics";
 import BusinessDashboardClient from "./BusinessDashboardClient";
 
 export default async function BusinessDashboardPage() {
@@ -10,7 +11,7 @@ export default async function BusinessDashboardPage() {
 
   const userEmail = session.user.email as string;
 
-  const [actions, actionToolRows, forms, submissions, member, cashFlow, productivity, financialMetrics] = await Promise.all([
+  const [actions, actionToolRows, forms, submissions, member, cashFlow, productivity, financialSnapshot] = await Promise.all([
     prisma.ninetyDayAction.findMany({
       where: { userEmail },
       orderBy: { createdAt: "asc" },
@@ -44,24 +45,8 @@ export default async function BusinessDashboardPage() {
       where: { userEmail },
       select: { percentage: true, breakEvenRpp: true, theMonthRpp: true, targetFigure: true },
     }),
-    prisma.financialMetric.findMany({
-      where: { userEmail },
-      select: { type: true, period: true, value: true, percentage: true },
-    }),
+    getLatestFinancialSnapshot(userEmail),
   ]);
-
-  function buildMetric(type: string) {
-    const month = financialMetrics.find((m) => m.type === type && m.period === "MONTH");
-    const year  = financialMetrics.find((m) => m.type === type && m.period === "YEAR");
-    const fmt   = (v: { toString(): string } | null | undefined) =>
-      v != null ? `£${Number(v).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : "—";
-    return {
-      monthPercentage: month?.percentage ?? 0,
-      yearPercentage:  year?.percentage  ?? 0,
-      monthValue: fmt(month?.value),
-      yearValue:  fmt(year?.value),
-    };
-  }
 
   const submittedFormIds = new Set(submissions.filter((s) => s.outputPdfUrl).map((s) => s.formId));
 
@@ -118,9 +103,9 @@ export default async function BusinessDashboardPage() {
       companyName={member?.companyName ?? null}
       companyLogoUrl={companyLogoDataUrl}
       cashFlow={cashFlow ? { amount: cashFlow.amount.toString(), includesVat: String(cashFlow.includesVat) } : null}
-      grossProfit={buildMetric("GROSS_PROFIT")}
-      revenue={buildMetric("REVENUE")}
-      netProfit={buildMetric("NET_PROFIT")}
+      grossProfit={financialSnapshot.grossProfit}
+      revenue={financialSnapshot.revenue}
+      netProfit={financialSnapshot.netProfit}
       productivity={productivity ? {
         percentage: productivity.percentage,
         breakEvenRpp: productivity.breakEvenRpp?.toString() ?? null,
