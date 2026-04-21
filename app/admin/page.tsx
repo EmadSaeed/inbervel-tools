@@ -269,6 +269,18 @@ export default function AdminPage() {
                                 )}
                             </button>
 
+                            <button
+                                onClick={() =>
+                                    router.push(
+                                        `/admin/member-performance?email=${encodeURIComponent(data.email)}`,
+                                    )
+                                }
+                                disabled={loading || generating}
+                                className="memberPerfBtn"
+                            >
+                                Member Performance
+                            </button>
+
 
                             {!data.readyToGenerate && (
                                 <p className="hint">

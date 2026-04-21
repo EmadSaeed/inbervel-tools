@@ -1,5 +1,12 @@
 import { prisma } from "@/lib/prisma";
 
+export async function getFinancialPeriodRecords(userEmail: string) {
+  return prisma.financialPeriodRecord.findMany({
+    where: { userEmail },
+    orderBy: [{ cycleNumber: "asc" }, { periodNumber: "asc" }],
+  });
+}
+
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December",

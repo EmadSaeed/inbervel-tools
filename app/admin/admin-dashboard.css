@@ -173,6 +173,24 @@
     cursor: not-allowed;
 }
 
+.memberPerfBtn {
+    margin: 0 auto 14px;
+    width: 100%;
+    background: #ffffff;
+    color: #0C2218;
+    border: 1px solid #0C2218;
+    border-radius: 0;
+    padding: 14px 16px;
+    cursor: pointer;
+    font-size: 20px;
+    text-align: center;
+}
+
+.memberPerfBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .hint {
     margin-top: 10px;
     opacity: 0.75;
@@ -288,6 +306,12 @@
     .generateBtn {
         background: #6fcf97;
         color: #0C2218;
+    }
+
+    .memberPerfBtn {
+        background: transparent;
+        color: #e9ffe9;
+        border-color: rgba(233, 255, 233, 0.45);
     }
 
     .content {

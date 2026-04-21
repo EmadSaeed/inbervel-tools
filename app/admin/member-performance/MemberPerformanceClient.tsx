@@ -1,0 +1,392 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
+import Image from "next/image";
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import "./member-performance.css";
+
+type PeriodRecord = {
+  id: string;
+  cycleNumber: number;
+  periodNumber: number;
+  month: string | null;
+  year: number | null;
+  MonthGrossProfit: number;
+  MonthRevenue: number;
+  MonthNetProfit: number;
+  MonthGrossProfitBudget: number;
+  MonthRevenueBudget: number;
+  MonthNetProfitBudget: number;
+  MonthGrossProfitPct: number | null;
+  MonthRevenuePct: number | null;
+  MonthNetProfitPct: number | null;
+  YTDGrossProfit: number;
+  YTDRevenue: number;
+  YTDNetProfit: number;
+  YTDGrossProfitBudget: number;
+  YTDRevenueBudget: number;
+  YTDNetProfitBudget: number;
+  YTDGrossProfitPct: number | null;
+  YTDRevenuePct: number | null;
+  YTDNetProfitPct: number | null;
+  currency: string;
+  recordedAt: string;
+};
+
+type NotePayload = {
+  content: string;
+  updatedAt: string;
+  updatedBy: string;
+};
+
+type Response = {
+  email: string;
+  companyName: string | null;
+  memberName: string | null;
+  records: PeriodRecord[];
+  note: NotePayload | null;
+};
+
+function fmtCurrency(value: number, currency: string) {
+  try {
+    return new Intl.NumberFormat("en-GB", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(value);
+  } catch {
+    return value.toFixed(0);
+  }
+}
+
+function fmtPct(value: number | null) {
+  if (value === null || Number.isNaN(value)) return "—";
+  return `${value.toFixed(1)}%`;
+}
+
+function shortPeriodLabel(r: PeriodRecord) {
+  if (r.month && r.year) return `${r.month.slice(0, 3)} ${String(r.year).slice(2)}`;
+  return `P${r.periodNumber}`;
+}
+
+export default function MemberPerformanceClient({
+  email,
+  adminEmail,
+}: {
+  email: string;
+  adminEmail: string;
+}) {
+  const router = useRouter();
+  const { status } = useSession();
+
+  const [data, setData] = useState<Response | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [notes, setNotes] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [noteMeta, setNoteMeta] = useState<{ updatedAt: string; updatedBy: string } | null>(null);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.replace("/admin/login");
+    }
+  }, [status, router]);
+
+  useEffect(() => {
+    if (!email) {
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(
+          `/api/admin/member-performance?email=${encodeURIComponent(email)}`,
+        );
+        if (res.status === 404) {
+          if (!cancelled) setError("No client found with that email address.");
+          return;
+        }
+        if (!res.ok) {
+          if (!cancelled) setError(await res.text());
+          return;
+        }
+        const json = (await res.json()) as Response;
+        if (cancelled) return;
+        setData(json);
+        setNotes(json.note?.content ?? "");
+        setNoteMeta(
+          json.note
+            ? { updatedAt: json.note.updatedAt, updatedBy: json.note.updatedBy }
+            : null,
+        );
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [email]);
+
+  const chartData = useMemo(() => {
+    if (!data) return [];
+    return data.records.map((r) => ({
+      label: shortPeriodLabel(r),
+      Revenue: r.MonthRevenue,
+      RevenueBudget: r.MonthRevenueBudget,
+      GrossProfit: r.MonthGrossProfit,
+      GrossProfitBudget: r.MonthGrossProfitBudget,
+      NetProfit: r.MonthNetProfit,
+      NetProfitBudget: r.MonthNetProfitBudget,
+      YTDRevenue: r.YTDRevenue,
+      YTDGrossProfit: r.YTDGrossProfit,
+      YTDNetProfit: r.YTDNetProfit,
+    }));
+  }, [data]);
+
+  async function saveNotes() {
+    if (!email || saving) return;
+    setSaving(true);
+    try {
+      const res = await fetch("/api/admin/member-performance/note", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userEmail: email, content: notes }),
+      });
+      if (!res.ok) {
+        alert(await res.text());
+        return;
+      }
+      const saved = (await res.json()) as NotePayload;
+      setNoteMeta({ updatedAt: saved.updatedAt, updatedBy: saved.updatedBy });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (status === "loading") return null;
+
+  if (!email) {
+    return (
+      <div className="mp-canvas">
+        <p className="mp-hint">Select a member from the admin dashboard to view their performance.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mp-canvas">
+      <header className="mp-header">
+        <div className="mp-brand">
+          <Image
+            src="/Inbervel-logo.png"
+            alt="Inbervel Logo"
+            width={120}
+            height={70}
+            priority
+          />
+          <div>
+            <div className="mp-title">Member Performance</div>
+            <div className="mp-sub">{data?.companyName ?? data?.memberName ?? email}</div>
+            <div className="mp-email">{email}</div>
+          </div>
+        </div>
+        <div className="mp-actions">
+          <button className="mp-ghost" onClick={() => router.push("/admin")}>
+            Back to admin
+          </button>
+          <button
+            className="mp-ghost"
+            onClick={() => signOut({ callbackUrl: "/admin/login" })}
+          >
+            Sign out ({adminEmail})
+          </button>
+        </div>
+      </header>
+
+      {loading && <p className="mp-hint">Loading…</p>}
+      {error && <p className="mp-error">{error}</p>}
+
+      {!loading && !error && data && (
+        <>
+          <section className="mp-section">
+            <h2 className="mp-h2">Performance table</h2>
+            {data.records.length === 0 ? (
+              <p className="mp-hint">No performance records yet for this member.</p>
+            ) : (
+              <div className="mp-tableWrap">
+                <table className="mp-table">
+                  <thead>
+                    <tr>
+                      <th>Period</th>
+                      <th>Month</th>
+                      <th>Year</th>
+                      <th>Revenue</th>
+                      <th>Rev. Budget</th>
+                      <th>Rev. %</th>
+                      <th>Gross Profit</th>
+                      <th>GP Budget</th>
+                      <th>GP %</th>
+                      <th>Net Profit</th>
+                      <th>NP Budget</th>
+                      <th>NP %</th>
+                      <th>YTD Rev.</th>
+                      <th>YTD GP</th>
+                      <th>YTD NP</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.records.map((r) => (
+                      <tr key={r.id}>
+                        <td>
+                          C{r.cycleNumber}·P{r.periodNumber}
+                        </td>
+                        <td>{r.month ?? "—"}</td>
+                        <td>{r.year ?? "—"}</td>
+                        <td>{fmtCurrency(r.MonthRevenue, r.currency)}</td>
+                        <td>{fmtCurrency(r.MonthRevenueBudget, r.currency)}</td>
+                        <td>{fmtPct(r.MonthRevenuePct)}</td>
+                        <td>{fmtCurrency(r.MonthGrossProfit, r.currency)}</td>
+                        <td>{fmtCurrency(r.MonthGrossProfitBudget, r.currency)}</td>
+                        <td>{fmtPct(r.MonthGrossProfitPct)}</td>
+                        <td>{fmtCurrency(r.MonthNetProfit, r.currency)}</td>
+                        <td>{fmtCurrency(r.MonthNetProfitBudget, r.currency)}</td>
+                        <td>{fmtPct(r.MonthNetProfitPct)}</td>
+                        <td>{fmtCurrency(r.YTDRevenue, r.currency)}</td>
+                        <td>{fmtCurrency(r.YTDGrossProfit, r.currency)}</td>
+                        <td>{fmtCurrency(r.YTDNetProfit, r.currency)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+
+          <section className="mp-section">
+            <h2 className="mp-h2">Trends</h2>
+            {data.records.length === 0 ? (
+              <p className="mp-hint">No data to chart yet.</p>
+            ) : (
+              <div className="mp-chartGrid">
+                <div className="mp-chartCell">
+                  <div className="mp-chartTitle">Revenue — actual vs budget</div>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
+                      <XAxis dataKey="label" stroke="#e9ffe9" />
+                      <YAxis stroke="#e9ffe9" />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="Revenue" stroke="#a7ff72" strokeWidth={2} />
+                      <Line
+                        type="monotone"
+                        dataKey="RevenueBudget"
+                        stroke="#ffbd59"
+                        strokeDasharray="4 4"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="mp-chartCell">
+                  <div className="mp-chartTitle">Gross Profit — actual vs budget</div>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
+                      <XAxis dataKey="label" stroke="#e9ffe9" />
+                      <YAxis stroke="#e9ffe9" />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="GrossProfit" stroke="#a7ff72" strokeWidth={2} />
+                      <Line
+                        type="monotone"
+                        dataKey="GrossProfitBudget"
+                        stroke="#ffbd59"
+                        strokeDasharray="4 4"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="mp-chartCell">
+                  <div className="mp-chartTitle">Net Profit — actual vs budget</div>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
+                      <XAxis dataKey="label" stroke="#e9ffe9" />
+                      <YAxis stroke="#e9ffe9" />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="NetProfit" stroke="#a7ff72" strokeWidth={2} />
+                      <Line
+                        type="monotone"
+                        dataKey="NetProfitBudget"
+                        stroke="#ffbd59"
+                        strokeDasharray="4 4"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="mp-chartCell">
+                  <div className="mp-chartTitle">YTD cumulative</div>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
+                      <XAxis dataKey="label" stroke="#e9ffe9" />
+                      <YAxis stroke="#e9ffe9" />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="YTDRevenue" stroke="#a7ff72" strokeWidth={2} />
+                      <Line type="monotone" dataKey="YTDGrossProfit" stroke="#6fcf97" strokeWidth={2} />
+                      <Line type="monotone" dataKey="YTDNetProfit" stroke="#ffbd59" strokeWidth={2} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+          </section>
+
+          <section className="mp-section mp-notes">
+            <h2 className="mp-h2">Member Performance Notes</h2>
+            {noteMeta && (
+              <p className="mp-noteMeta">
+                Last updated {new Date(noteMeta.updatedAt).toLocaleString("en-GB")} by{" "}
+                <strong>{noteMeta.updatedBy}</strong>
+              </p>
+            )}
+            <textarea
+              className="mp-textarea"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Write your performance notes for this member…"
+              disabled={saving}
+            />
+            <button
+              className="mp-saveBtn"
+              onClick={saveNotes}
+              disabled={saving}
+            >
+              {saving ? "Saving…" : "Save notes"}
+            </button>
+          </section>
+        </>
+      )}
+    </div>
+  );
+}
