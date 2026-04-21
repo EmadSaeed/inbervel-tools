@@ -151,6 +151,16 @@ async function resolveNextPeriod(userEmail: string, month: number, year: number)
     return { cycleNumber: 1, periodNumber: 1, gapPeriods: [] };
   }
 
+  // Budget-only seed (Form 25 with empty table) → has no real month anchor,
+  // so a subsequent Form 41 occupies the seed slot regardless of its month.
+  const isSeed =
+    Number(latest.MonthGrossProfit) === 0 &&
+    Number(latest.MonthRevenue) === 0 &&
+    Number(latest.MonthNetProfit) === 0;
+  if (isSeed) {
+    return { cycleNumber: latest.cycleNumber, periodNumber: latest.periodNumber, gapPeriods: [] };
+  }
+
   const lastDate = new Date(latest.recordedAt);
   const lastMonth = lastDate.getMonth() + 1; // 1-based
   const lastYear = lastDate.getFullYear();
@@ -215,14 +225,13 @@ export async function handleFinancialBudgets(userEmail: string, payload: any) {
   });
 
   if (!latest) {
-    const now = new Date();
     await prisma.financialPeriodRecord.create({
       data: {
         userEmail,
         cycleNumber: 1,
         periodNumber: 1,
-        month: MONTH_NAMES[now.getMonth()],
-        year: now.getFullYear(),
+        month: null,
+        year: null,
         MonthGrossProfit: 0,
         MonthRevenue: 0,
         MonthNetProfit: 0,
@@ -241,7 +250,7 @@ export async function handleFinancialBudgets(userEmail: string, payload: any) {
         YTDGrossProfitPct: null,
         YTDRevenuePct: null,
         YTDNetProfitPct: null,
-        recordedAt: now,
+        recordedAt: new Date(),
       },
     });
     return;
