@@ -224,7 +224,7 @@ export default function MemberPerformanceClient({
       {!loading && !error && data && (
         <>
           <section className="mp-section">
-            <h2 className="mp-h2">Performance table</h2>
+            <h2 className="mp-h2">Monthly performance</h2>
             {data.records.length === 0 ? (
               <p className="mp-hint">No performance records yet for this member.</p>
             ) : (
@@ -244,17 +244,12 @@ export default function MemberPerformanceClient({
                       <th>Net Profit</th>
                       <th>NP Budget</th>
                       <th>NP %</th>
-                      <th>YTD Rev.</th>
-                      <th>YTD GP</th>
-                      <th>YTD NP</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.records.map((r) => (
                       <tr key={r.id}>
-                        <td>
-                          C{r.cycleNumber}·P{r.periodNumber}
-                        </td>
+                        <td>C{r.cycleNumber}·P{r.periodNumber}</td>
                         <td>{r.month ?? "—"}</td>
                         <td>{r.year ?? "—"}</td>
                         <td>{fmtCurrency(r.MonthRevenue, r.currency)}</td>
@@ -266,6 +261,37 @@ export default function MemberPerformanceClient({
                         <td>{fmtCurrency(r.MonthNetProfit, r.currency)}</td>
                         <td>{fmtCurrency(r.MonthNetProfitBudget, r.currency)}</td>
                         <td>{fmtPct(r.MonthNetProfitPct)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+
+          <section className="mp-section">
+            <h2 className="mp-h2">YTD performance</h2>
+            {data.records.length === 0 ? (
+              <p className="mp-hint">No performance records yet for this member.</p>
+            ) : (
+              <div className="mp-tableWrap">
+                <table className="mp-table">
+                  <thead>
+                    <tr>
+                      <th>Period</th>
+                      <th>Month</th>
+                      <th>Year</th>
+                      <th>YTD Revenue</th>
+                      <th>YTD GP</th>
+                      <th>YTD NP</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.records.map((r) => (
+                      <tr key={r.id}>
+                        <td>C{r.cycleNumber}·P{r.periodNumber}</td>
+                        <td>{r.month ?? "—"}</td>
+                        <td>{r.year ?? "—"}</td>
                         <td>{fmtCurrency(r.YTDRevenue, r.currency)}</td>
                         <td>{fmtCurrency(r.YTDGrossProfit, r.currency)}</td>
                         <td>{fmtCurrency(r.YTDNetProfit, r.currency)}</td>
