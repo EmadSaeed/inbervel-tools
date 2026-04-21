@@ -1,5 +1,10 @@
 import { prisma } from "@/lib/prisma";
 
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+] as const;
+
 const pct = (num: unknown, denom: number): number | null =>
   denom > 0 ? (Number(num) / denom) * 100 : null;
 
@@ -57,6 +62,17 @@ async function createPeriodRecord(
   month: number,
   year: number,
 ) {
+  // Existing record at this slot — budgets may already have been set by a
+  // form 25 seed or a prior form 25 backfill; prefer them over prior-period inheritance.
+  const existing = await prisma.financialPeriodRecord.findUnique({
+    where: { userEmail_cycleNumber_periodNumber: { userEmail, cycleNumber, periodNumber } },
+    select: {
+      MonthGrossProfitBudget: true,
+      MonthRevenueBudget: true,
+      MonthNetProfitBudget: true,
+    },
+  });
+
   // Prior records in the same cycle (used for YTD accumulation and budget inheritance)
   const priorRecords = await prisma.financialPeriodRecord.findMany({
     where: { userEmail, cycleNumber, periodNumber: { lt: periodNumber } },
@@ -76,9 +92,9 @@ async function createPeriodRecord(
   const YTDNetProfit   = priorRecords.reduce((s, r) => s + Number(r.MonthNetProfit),   0) + netProfit;
 
   const prior = priorRecords[0]; // most recent prior period
-  const gpBudget = prior ? Number(prior.MonthGrossProfitBudget) : 0;
-  const revBudget = prior ? Number(prior.MonthRevenueBudget) : 0;
-  const npBudget = prior ? Number(prior.MonthNetProfitBudget) : 0;
+  const gpBudget  = existing ? Number(existing.MonthGrossProfitBudget) : (prior ? Number(prior.MonthGrossProfitBudget) : 0);
+  const revBudget = existing ? Number(existing.MonthRevenueBudget)     : (prior ? Number(prior.MonthRevenueBudget)     : 0);
+  const npBudget  = existing ? Number(existing.MonthNetProfitBudget)   : (prior ? Number(prior.MonthNetProfitBudget)   : 0);
 
   const YTDGpBudget = gpBudget * periodNumber;
   const YTDRevBudget = revBudget * periodNumber;
@@ -103,6 +119,8 @@ async function createPeriodRecord(
     YTDGrossProfitPct: pct(YTDGrossProfit, YTDGpBudget),
     YTDRevenuePct:     pct(YTDRevenue,     YTDRevBudget),
     YTDNetProfitPct:   pct(YTDNetProfit,   YTDNpBudget),
+    month: MONTH_NAMES[month - 1],
+    year,
     recordedAt: new Date(year, month - 1, 1),
   };
 
@@ -131,15 +149,6 @@ async function resolveNextPeriod(userEmail: string, month: number, year: number)
   // First ever submission
   if (!latest) {
     return { cycleNumber: 1, periodNumber: 1, gapPeriods: [] };
-  }
-
-  // Budget-only seed (no Month values written yet) → overwrite it in place
-  const isSeed =
-    Number(latest.MonthGrossProfit) === 0 &&
-    Number(latest.MonthRevenue) === 0 &&
-    Number(latest.MonthNetProfit) === 0;
-  if (isSeed) {
-    return { cycleNumber: latest.cycleNumber, periodNumber: latest.periodNumber, gapPeriods: [] };
   }
 
   const lastDate = new Date(latest.recordedAt);
@@ -206,11 +215,14 @@ export async function handleFinancialBudgets(userEmail: string, payload: any) {
   });
 
   if (!latest) {
+    const now = new Date();
     await prisma.financialPeriodRecord.create({
       data: {
         userEmail,
         cycleNumber: 1,
         periodNumber: 1,
+        month: MONTH_NAMES[now.getMonth()],
+        year: now.getFullYear(),
         MonthGrossProfit: 0,
         MonthRevenue: 0,
         MonthNetProfit: 0,
@@ -229,7 +241,7 @@ export async function handleFinancialBudgets(userEmail: string, payload: any) {
         YTDGrossProfitPct: null,
         YTDRevenuePct: null,
         YTDNetProfitPct: null,
-        recordedAt: new Date(),
+        recordedAt: now,
       },
     });
     return;

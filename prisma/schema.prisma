@@ -184,6 +184,8 @@ model FinancialPeriodRecord {
     userEmail     String
     cycleNumber   Int      @default(1)
     periodNumber  Int      // 1-12
+    month         String?  // e.g., "April"
+    year          Int?     // e.g., 2026
 
     // Individual month values
     MonthGrossProfit         Decimal
