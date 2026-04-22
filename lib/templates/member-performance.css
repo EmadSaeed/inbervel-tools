@@ -1,0 +1,222 @@
+@page {
+  size: A4;
+  margin: 20mm 15mm;
+}
+
+:root {
+  --dark-green: #0C2218;
+  --light-green: #A6FE84;
+  --pale-green: #dff7d6;
+  --meta-grey: #8b8b8b;
+  --border: #e5e7eb;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: Figtree, "Open Sans", Arial, Helvetica, sans-serif;
+  color: var(--dark-green);
+  background: #fff;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.page {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.page-break {
+  break-before: page;
+  page-break-before: always;
+}
+
+/* ---------- Cover ---------- */
+
+.coverHead {
+  background-color: var(--dark-green);
+  padding: 3mm 10mm;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 15mm;
+}
+
+.coverLogo {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.coverLogo img {
+  max-height: 9mm;
+  max-width: 100%;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.coverDate {
+  font-size: 13px;
+  color: var(--light-green);
+  letter-spacing: 0.4px;
+  padding-left: 6mm;
+  border-left: 1px solid rgba(166, 254, 132, 0.4);
+  height: 12mm;
+  display: flex;
+  align-items: center;
+}
+
+.coverTitleBlock {
+  background-color: var(--light-green);
+  padding: 18mm 15mm;
+  margin-top: 14mm;
+}
+
+.coverKicker {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark-green);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.coverTitle {
+  font-size: 56px;
+  line-height: 1.05;
+  font-weight: 700;
+  color: var(--dark-green);
+  margin-top: 6mm;
+}
+
+.coverAccent {
+  height: 14mm;
+  background: var(--dark-green);
+}
+
+.coverMeta {
+  margin-top: 14mm;
+  padding-left: 15mm;
+  border-left: 4px solid var(--light-green);
+}
+
+.coverMeta .label {
+  font-size: 11px;
+  color: var(--meta-grey);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.coverMeta .value {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 1mm;
+  margin-bottom: 6mm;
+  color: var(--dark-green);
+}
+
+/* ---------- Content pages ---------- */
+
+.sectionHead {
+  padding-bottom: 6mm;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6mm;
+}
+
+.sectionKicker {
+  font-size: 11px;
+  color: var(--meta-grey);
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
+.sectionTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--dark-green);
+  margin-top: 1mm;
+}
+
+.chartStack > .chartWrap + .chartWrap {
+  margin-top: 8mm;
+}
+
+.mpTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10.5px;
+}
+
+.mpTable th,
+.mpTable td {
+  padding: 6px 8px;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.mpTable th {
+  background: var(--pale-green);
+  color: var(--dark-green);
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.mpTable th:nth-child(1),
+.mpTable td:nth-child(1),
+.mpTable th:nth-child(2),
+.mpTable td:nth-child(2),
+.mpTable th:nth-child(3),
+.mpTable td:nth-child(3) {
+  text-align: left;
+}
+
+.mpTable tr {
+  break-inside: avoid;
+}
+
+.chartWrap {
+  margin-top: 8mm;
+  padding: 4mm;
+  border: 1px solid var(--border);
+  border-radius: 3mm;
+}
+
+.chartTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dark-green);
+  margin-bottom: 2mm;
+}
+
+.notesBlock {
+  margin-top: 10mm;
+  padding: 5mm 6mm;
+  background: var(--pale-green);
+  border-left: 4px solid var(--light-green);
+  border-radius: 2mm;
+}
+
+.notesTitle {
+  font-size: 11px;
+  color: var(--meta-grey);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-bottom: 2mm;
+}
+
+.notesBody {
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--dark-green);
+}
+
+.emptyState {
+  padding: 20mm 0;
+  text-align: center;
+  color: var(--meta-grey);
+  font-size: 14px;
+}

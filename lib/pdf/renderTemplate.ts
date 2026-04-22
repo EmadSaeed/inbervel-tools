@@ -28,7 +28,7 @@ function extToMime(ext: string) {
 // Reads a local file from disk and returns it as a base64 data URI.
 // Used to inline the risk chart image so Puppeteer can render it without
 // needing filesystem access from inside the headless browser.
-async function fileToDataUri(relativePathFromRoot: string) {
+export async function fileToDataUri(relativePathFromRoot: string) {
   const abs = path.join(process.cwd(), relativePathFromRoot);
   const buf = await fs.readFile(abs);
   const mime = extToMime(path.extname(abs));

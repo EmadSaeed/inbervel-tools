@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Member Performance Report</title>
+  <style>{{{css}}}</style>
+</head>
+<body>
+
+  {{!-- ---------- Cover page ---------- --}}
+  <section class="page">
+    <div class="coverHead">
+      <div class="coverLogo">
+        {{#if logoDataUri}}
+          <img src="{{logoDataUri}}" alt="Inbervel" />
+        {{/if}}
+      </div>
+      <div class="coverDate">{{reportDate}}</div>
+    </div>
+    {{!-- coverHead negative-margin bleed is reset here so following blocks align --}}
+
+    <div class="coverTitleBlock">
+      <div class="coverKicker">Inbervel · Profit-Pilot</div>
+      <div class="coverTitle">Member Performance<br/>Report</div>
+    </div>
+    <div class="coverAccent"></div>
+
+    <div class="coverMeta">
+      <div class="label">Member / Company</div>
+      <div class="value">{{displayName}}</div>
+
+      <div class="label">Email</div>
+      <div class="value">{{email}}</div>
+
+      <div class="label">Period Covered</div>
+      <div class="value">{{periodCovered}}</div>
+    </div>
+  </section>
+
+  {{!-- ---------- Page 2: Monthly ---------- --}}
+  <section class="page page-break">
+    <div class="sectionHead">
+      <div>
+        <div class="sectionKicker">Section 1</div>
+        <div class="sectionTitle">Monthly Performance</div>
+      </div>
+    </div>
+
+    {{#if hasRecords}}
+      <table class="mpTable">
+        <thead>
+          <tr>
+            <th>Period</th>
+            <th>Month</th>
+            <th>Year</th>
+            <th>Revenue</th>
+            <th>Rev. Budget</th>
+            <th>Rev. %</th>
+            <th>GP</th>
+            <th>GP Budget</th>
+            <th>GP %</th>
+            <th>NP</th>
+            <th>NP Budget</th>
+            <th>NP %</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each records}}
+            <tr>
+              <td>C{{cycleNumber}}·P{{periodNumber}}</td>
+              <td>{{monthLabel}}</td>
+              <td>{{yearLabel}}</td>
+              <td>{{monthRevenue}}</td>
+              <td>{{monthRevenueBudget}}</td>
+              <td>{{monthRevenuePct}}</td>
+              <td>{{monthGrossProfit}}</td>
+              <td>{{monthGrossProfitBudget}}</td>
+              <td>{{monthGrossProfitPct}}</td>
+              <td>{{monthNetProfit}}</td>
+              <td>{{monthNetProfitBudget}}</td>
+              <td>{{monthNetProfitPct}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+
+      <div class="chartWrap">
+        <div class="chartTitle">Revenue — actual vs budget</div>
+        {{{monthlyChartSvg}}}
+      </div>
+    {{else}}
+      <div class="emptyState">No performance records yet for this member.</div>
+    {{/if}}
+  </section>
+
+  {{!-- ---------- Page 3: Monthly Trends (GP + NP) ---------- --}}
+  <section class="page page-break">
+    <div class="sectionHead">
+      <div>
+        <div class="sectionKicker">Section 2</div>
+        <div class="sectionTitle">Monthly Trends</div>
+      </div>
+    </div>
+
+    {{#if hasRecords}}
+      <div class="chartStack">
+        <div class="chartWrap">
+          <div class="chartTitle">Gross Profit — actual vs budget</div>
+          {{{gpChartSvg}}}
+        </div>
+        <div class="chartWrap">
+          <div class="chartTitle">Net Profit — actual vs budget</div>
+          {{{npChartSvg}}}
+        </div>
+      </div>
+    {{else}}
+      <div class="emptyState">No performance records yet for this member.</div>
+    {{/if}}
+  </section>
+
+  {{!-- ---------- Page 4: YTD + Notes ---------- --}}
+  <section class="page page-break">
+    <div class="sectionHead">
+      <div>
+        <div class="sectionKicker">Section 3</div>
+        <div class="sectionTitle">YTD Performance</div>
+      </div>
+    </div>
+
+    {{#if hasRecords}}
+      <table class="mpTable">
+        <thead>
+          <tr>
+            <th>Period</th>
+            <th>Month</th>
+            <th>Year</th>
+            <th>YTD Revenue</th>
+            <th>YTD GP</th>
+            <th>YTD NP</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each records}}
+            <tr>
+              <td>C{{cycleNumber}}·P{{periodNumber}}</td>
+              <td>{{monthLabel}}</td>
+              <td>{{yearLabel}}</td>
+              <td>{{ytdRevenue}}</td>
+              <td>{{ytdGrossProfit}}</td>
+              <td>{{ytdNetProfit}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+
+      <div class="chartWrap">
+        <div class="chartTitle">YTD cumulative — Revenue / GP / NP</div>
+        {{{ytdChartSvg}}}
+      </div>
+    {{else}}
+      <div class="emptyState">No performance records yet for this member.</div>
+    {{/if}}
+
+    {{#if noteContent}}
+      <div class="notesBlock">
+        <div class="notesTitle">Member Performance Notes</div>
+        <div class="notesBody">{{noteContent}}</div>
+      </div>
+    {{/if}}
+  </section>
+
+</body>
+</html>

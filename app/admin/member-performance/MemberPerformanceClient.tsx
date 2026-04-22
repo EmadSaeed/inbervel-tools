@@ -96,6 +96,7 @@ export default function MemberPerformanceClient({
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [noteMeta, setNoteMeta] = useState<{ updatedAt: string; updatedBy: string } | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -186,6 +187,36 @@ export default function MemberPerformanceClient({
       YTDNetProfit: round(r.YTDNetProfit),
     }));
   }, [data]);
+
+  async function exportPdf() {
+    if (!email || exporting) return;
+    setExporting(true);
+    try {
+      const res = await fetch("/api/admin/member-performance/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userEmail: email }),
+      });
+      if (!res.ok) {
+        alert(await res.text());
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const company = (data?.companyName ?? data?.memberName ?? email).trim();
+      const safeCompany = company
+        .replace(/[\/\\?%*:|"<>]/g, "-")
+        .replace(/\s+/g, " ")
+        .trim();
+      a.download = `${safeCompany} — Member Performance.pdf`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 30_000);
+    } finally {
+      setExporting(false);
+    }
+  }
 
   async function saveNotes() {
     if (!email || saving) return;
@@ -429,16 +460,25 @@ export default function MemberPerformanceClient({
               className="mp-textarea"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Write your performance notes for this member…"
+              placeholder="Write the performance notes for this member…"
               disabled={saving}
             />
-            <button
-              className="mp-saveBtn"
-              onClick={saveNotes}
-              disabled={saving}
-            >
-              {saving ? "Saving…" : "Save notes"}
-            </button>
+            <div className="mp-noteActions">
+              <button
+                className="mp-saveBtn"
+                onClick={saveNotes}
+                disabled={saving}
+              >
+                {saving ? "Saving…" : "Save notes"}
+              </button>
+              <button
+                className="mp-saveBtn mp-exportBtn"
+                onClick={exportPdf}
+                disabled={exporting || loading || !data}
+              >
+                {exporting ? "Exporting…" : "Export PDF"}
+              </button>
+            </div>
           </section>
         </>
       )}

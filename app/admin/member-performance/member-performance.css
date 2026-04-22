@@ -202,3 +202,19 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.mp-noteActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mp-exportBtn {
+  background: transparent;
+  color: #a7ff72;
+  border: 1px solid rgba(167, 255, 114, 0.6);
+}
+
+.mp-exportBtn:hover:not(:disabled) {
+  background: rgba(167, 255, 114, 0.12);
+}

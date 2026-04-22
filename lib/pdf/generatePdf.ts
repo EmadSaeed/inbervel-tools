@@ -19,6 +19,7 @@ const isVercel = !!process.env.VERCEL;
 type PdfOptions = {
   title?: string;
   subtitle?: string;
+  footerLeft?: string;
 };
 
 // Escapes characters that are special in HTML so they can be safely embedded
@@ -59,6 +60,7 @@ async function resolveChromiumExecutablePath(): Promise<string> {
 function buildPdfOptions(opts?: PdfOptions) {
   const title = escapeHtml(opts?.title ?? "Business Plan");
   const subtitle = escapeHtml(opts?.subtitle ?? "");
+  const footerLeft = escapeHtml(opts?.footerLeft ?? "");
 
   return {
     printBackground: true,   // render CSS backgrounds and colours
@@ -91,7 +93,7 @@ function buildPdfOptions(opts?: PdfOptions) {
       </div>
     `,
 
-    // Footer: "Page X of Y" aligned to the right.
+    // Footer: optional left slot (e.g. "© Inbervel") + "Page X of Y" on the right.
     // <span class="pageNumber"> and <span class="totalPages"> are special Puppeteer
     // placeholders that are replaced with the actual values at render time.
     footerTemplate: `
@@ -103,9 +105,10 @@ function buildPdfOptions(opts?: PdfOptions) {
         padding: 0mm 15mm;
         box-sizing: border-box;
         display: flex;
-        justify-content: flex-end;
+        justify-content: space-between;
         align-items: center;
       ">
+        <div style="opacity: 0.4;">${footerLeft}</div>
         <div style="opacity: 0.4;">
           Page <span class="pageNumber"></span> of <span class="totalPages"></span>
         </div>
