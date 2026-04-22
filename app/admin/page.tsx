@@ -71,6 +71,42 @@ export default function AdminPage() {
         if (stored) setEmail(stored);
     }, []);
 
+    // Once a client has been searched, keep the submissions panel fresh by
+    // refetching every 30 s while the tab is visible and on tab focus.
+    // Uses data.email (not the input) so edits to the input field don't
+    // redirect the poll to a half-typed address.
+    const searchedEmail = data?.email ?? null;
+    useEffect(() => {
+        if (!searchedEmail) return;
+
+        const refetch = async () => {
+            if (document.visibilityState !== "visible") return;
+            try {
+                const res = await fetch(
+                    `/api/admin/submissions?email=${encodeURIComponent(searchedEmail)}`,
+                );
+                if (!res.ok) return;
+                const json = (await res.json()) as AdminSubmissionsResponse;
+                setData(json);
+            } catch {
+                // Swallow network errors on background polls.
+            }
+        };
+
+        const interval = setInterval(refetch, 30_000);
+        const onVisible = () => {
+            if (document.visibilityState === "visible") refetch();
+        };
+        document.addEventListener("visibilitychange", onVisible);
+        window.addEventListener("focus", onVisible);
+
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener("visibilitychange", onVisible);
+            window.removeEventListener("focus", onVisible);
+        };
+    }, [searchedEmail]);
+
     // Build a map of formId -> most-recently-updated SubmissionRow so the table
     // always shows the latest submission date even if a client re-submitted a form
     // (which would produce multiple rows from the API for the same formId).
