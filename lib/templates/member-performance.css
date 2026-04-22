@@ -137,9 +137,6 @@ html, body {
   margin-top: 1mm;
 }
 
-.chartStack > .chartWrap + .chartWrap {
-  margin-top: 8mm;
-}
 
 .mpTable {
   width: 100%;
@@ -178,17 +175,16 @@ html, body {
 }
 
 .chartWrap {
-  margin-top: 8mm;
   padding: 4mm;
   border: 1px solid var(--border);
   border-radius: 3mm;
 }
 
 .chartTitle {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   color: var(--dark-green);
-  margin-bottom: 2mm;
+  margin: 8mm 0 3mm;
 }
 
 .notesBlock {

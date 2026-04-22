@@ -84,8 +84,8 @@
         </tbody>
       </table>
 
+      <div class="chartTitle">Revenue — actual vs budget</div>
       <div class="chartWrap">
-        <div class="chartTitle">Revenue — actual vs budget</div>
         {{{monthlyChartSvg}}}
       </div>
     {{else}}
@@ -97,12 +97,12 @@
   <section class="page page-break">
     {{#if hasRecords}}
       <div class="chartStack">
+        <div class="chartTitle">Gross Profit — actual vs budget</div>
         <div class="chartWrap">
-          <div class="chartTitle">Gross Profit — actual vs budget</div>
           {{{gpChartSvg}}}
         </div>
+        <div class="chartTitle">Net Profit — actual vs budget</div>
         <div class="chartWrap">
-          <div class="chartTitle">Net Profit — actual vs budget</div>
           {{{npChartSvg}}}
         </div>
       </div>
@@ -146,8 +146,8 @@
         </tbody>
       </table>
 
+      <div class="chartTitle">YTD cumulative — Revenue / GP / NP</div>
       <div class="chartWrap">
-        <div class="chartTitle">YTD cumulative — Revenue / GP / NP</div>
         {{{ytdChartSvg}}}
       </div>
     {{else}}
