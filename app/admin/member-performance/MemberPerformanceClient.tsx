@@ -423,7 +423,7 @@ export default function MemberPerformanceClient({
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
-                      <XAxis dataKey="label" stroke="#e9ffe9" />
+                      <XAxis dataKey="label" stroke="#e9ffe9" interval={0} />
                       <YAxis stroke="#e9ffe9" />
                       <Tooltip />
                       <Legend />
@@ -443,7 +443,7 @@ export default function MemberPerformanceClient({
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
-                      <XAxis dataKey="label" stroke="#e9ffe9" />
+                      <XAxis dataKey="label" stroke="#e9ffe9" interval={0} />
                       <YAxis stroke="#e9ffe9" />
                       <Tooltip />
                       <Legend />
@@ -463,7 +463,7 @@ export default function MemberPerformanceClient({
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
-                      <XAxis dataKey="label" stroke="#e9ffe9" />
+                      <XAxis dataKey="label" stroke="#e9ffe9" interval={0} />
                       <YAxis stroke="#e9ffe9" />
                       <Tooltip />
                       <Legend />
@@ -483,7 +483,7 @@ export default function MemberPerformanceClient({
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.15)" />
-                      <XAxis dataKey="label" stroke="#e9ffe9" />
+                      <XAxis dataKey="label" stroke="#e9ffe9" interval={0} />
                       <YAxis stroke="#e9ffe9" />
                       <Tooltip />
                       <Legend />
