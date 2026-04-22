@@ -205,33 +205,3 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
-
-.mp-budgetRow {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin: 8px 0 14px;
-}
-
-.mp-budgetField {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 13px;
-  opacity: 0.9;
-}
-
-.mp-budgetField input {
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  color: #e9ffe9;
-  font-family: inherit;
-  font-size: 14px;
-}
-
-.mp-budgetField input:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}

@@ -270,21 +270,6 @@ export async function handleFinancialBudgets(userEmail: string, payload: any) {
     return;
   }
 
-  await applyFinancialBudgets(userEmail, { gpBudget, revBudget, npBudget });
-}
-
-/**
- * Writes monthly budgets into every record of the user's current cycle,
- * recomputing YTD budgets and all six percentage fields for each record.
- * Used by Form 25 (via handleFinancialBudgets) and by the admin override
- * endpoint when a client won't/can't submit Form 25.
- *
- * If the user has no records yet, creates a P1/cycle1 seed (zero values, budgets only).
- */
-export async function applyFinancialBudgets(
-  userEmail: string,
-  { gpBudget, revBudget, npBudget }: { gpBudget: number; revBudget: number; npBudget: number },
-) {
   const latest = await prisma.financialPeriodRecord.findFirst({
     where: { userEmail },
     orderBy: [{ cycleNumber: "desc" }, { periodNumber: "desc" }],

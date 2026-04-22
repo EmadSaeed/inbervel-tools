@@ -96,11 +96,6 @@ export default function MemberPerformanceClient({
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [noteMeta, setNoteMeta] = useState<{ updatedAt: string; updatedBy: string } | null>(null);
-  const [revBudgetInput, setRevBudgetInput] = useState("");
-  const [gpBudgetInput, setGpBudgetInput] = useState("");
-  const [npBudgetInput, setNpBudgetInput] = useState("");
-  const [savingBudgets, setSavingBudgets] = useState(false);
-  const [budgetStatus, setBudgetStatus] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -139,21 +134,9 @@ export default function MemberPerformanceClient({
         const json = (await res.json()) as Response;
         if (cancelled) return;
         setData(json);
-        // Only seed editable inputs on the first fetch so background polls
+        // Only seed the notes textarea on the first fetch so background polls
         // don't clobber what the admin is typing.
-        if (initial) {
-          setNotes(json.note?.content ?? "");
-          const latestRecord = json.records[json.records.length - 1];
-          setRevBudgetInput(
-            latestRecord ? String(latestRecord.MonthRevenueBudget ?? 0) : "0",
-          );
-          setGpBudgetInput(
-            latestRecord ? String(latestRecord.MonthGrossProfitBudget ?? 0) : "0",
-          );
-          setNpBudgetInput(
-            latestRecord ? String(latestRecord.MonthNetProfitBudget ?? 0) : "0",
-          );
-        }
+        if (initial) setNotes(json.note?.content ?? "");
         setNoteMeta(
           json.note
             ? { updatedAt: json.note.updatedAt, updatedBy: json.note.updatedBy }
@@ -203,48 +186,6 @@ export default function MemberPerformanceClient({
       YTDNetProfit: round(r.YTDNetProfit),
     }));
   }, [data]);
-
-  async function saveBudgets() {
-    if (!email || savingBudgets) return;
-    const revBudget = Number(revBudgetInput);
-    const gpBudget = Number(gpBudgetInput);
-    const npBudget = Number(npBudgetInput);
-    if (
-      !Number.isFinite(revBudget) ||
-      !Number.isFinite(gpBudget) ||
-      !Number.isFinite(npBudget) ||
-      revBudget < 0 ||
-      gpBudget < 0 ||
-      npBudget < 0
-    ) {
-      setBudgetStatus("Budgets must be non-negative numbers.");
-      return;
-    }
-
-    setSavingBudgets(true);
-    setBudgetStatus(null);
-    try {
-      const res = await fetch("/api/admin/member-performance/budgets", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userEmail: email, revBudget, gpBudget, npBudget }),
-      });
-      if (!res.ok) {
-        setBudgetStatus(await res.text());
-        return;
-      }
-      const refresh = await fetch(
-        `/api/admin/member-performance?email=${encodeURIComponent(email)}`,
-      );
-      if (refresh.ok) {
-        const json = (await refresh.json()) as Response;
-        setData(json);
-      }
-      setBudgetStatus("Budgets saved.");
-    } finally {
-      setSavingBudgets(false);
-    }
-  }
 
   async function saveNotes() {
     if (!email || saving) return;
@@ -474,57 +415,6 @@ export default function MemberPerformanceClient({
                 </div>
               </div>
             )}
-          </section>
-
-          <section className="mp-section mp-budgets">
-            <h2 className="mp-h2">Budgets (admin override)</h2>
-            <p className="mp-hint">
-              Applies to every record in the current cycle. Use when a member
-              won&rsquo;t or can&rsquo;t submit Form 25 themselves.
-            </p>
-            <div className="mp-budgetRow">
-              <label className="mp-budgetField">
-                <span>Revenue budget</span>
-                <input
-                  type="number"
-                  min={0}
-                  step="any"
-                  value={revBudgetInput}
-                  onChange={(e) => setRevBudgetInput(e.target.value)}
-                  disabled={savingBudgets}
-                />
-              </label>
-              <label className="mp-budgetField">
-                <span>GP budget</span>
-                <input
-                  type="number"
-                  min={0}
-                  step="any"
-                  value={gpBudgetInput}
-                  onChange={(e) => setGpBudgetInput(e.target.value)}
-                  disabled={savingBudgets}
-                />
-              </label>
-              <label className="mp-budgetField">
-                <span>NP budget</span>
-                <input
-                  type="number"
-                  min={0}
-                  step="any"
-                  value={npBudgetInput}
-                  onChange={(e) => setNpBudgetInput(e.target.value)}
-                  disabled={savingBudgets}
-                />
-              </label>
-            </div>
-            <button
-              className="mp-saveBtn"
-              onClick={saveBudgets}
-              disabled={savingBudgets}
-            >
-              {savingBudgets ? "Saving…" : "Save budgets"}
-            </button>
-            {budgetStatus && <p className="mp-hint">{budgetStatus}</p>}
           </section>
 
           <section className="mp-section mp-notes">
