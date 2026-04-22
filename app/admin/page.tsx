@@ -66,6 +66,11 @@ export default function AdminPage() {
         }
     }, [status, session?.user?.role, router]);
 
+    useEffect(() => {
+        const stored = localStorage.getItem("admin:lastSearchedEmail");
+        if (stored) setEmail(stored);
+    }, []);
+
     // Build a map of formId -> most-recently-updated SubmissionRow so the table
     // always shows the latest submission date even if a client re-submitted a form
     // (which would produce multiple rows from the API for the same formId).
@@ -92,6 +97,8 @@ export default function AdminPage() {
     // Fetches submission status for the entered email from the API and updates state.
     async function search() {
         if (loading || generating) return;
+
+        localStorage.setItem("admin:lastSearchedEmail", email.trim());
 
         setLoading(true);
         setNotFound(false);
@@ -199,6 +206,11 @@ export default function AdminPage() {
                         type="email"
                         value={email}
                         onChange={(e) => { setEmail(e.target.value); setNotFound(false); }}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" && email.trim() && !loading && !generating) {
+                                search();
+                            }
+                        }}
                         placeholder="Client Email"
                         className="input"
                         disabled={loading || generating}
