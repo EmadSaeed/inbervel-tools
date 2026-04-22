@@ -97,6 +97,7 @@ export default function MemberPerformanceClient({
   const [saving, setSaving] = useState(false);
   const [noteMeta, setNoteMeta] = useState<{ updatedAt: string; updatedBy: string } | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [selectedCycle, setSelectedCycle] = useState<number | "all">("all");
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -135,9 +136,17 @@ export default function MemberPerformanceClient({
         const json = (await res.json()) as Response;
         if (cancelled) return;
         setData(json);
-        // Only seed the notes textarea on the first fetch so background polls
-        // don't clobber what the admin is typing.
-        if (initial) setNotes(json.note?.content ?? "");
+        // Only seed the notes textarea + cycle filter on the first fetch so
+        // background polls don't clobber what the admin is typing or flip
+        // them back to a cycle they've switched away from.
+        if (initial) {
+          setNotes(json.note?.content ?? "");
+          const latestCycle = json.records.reduce(
+            (max, r) => (r.cycleNumber > max ? r.cycleNumber : max),
+            0,
+          );
+          if (latestCycle > 0) setSelectedCycle(latestCycle);
+        }
         setNoteMeta(
           json.note
             ? { updatedAt: json.note.updatedAt, updatedBy: json.note.updatedBy }
@@ -171,10 +180,22 @@ export default function MemberPerformanceClient({
     };
   }, [email]);
 
-  const chartData = useMemo(() => {
+  const availableCycles = useMemo(() => {
     if (!data) return [];
+    const set = new Set<number>();
+    for (const r of data.records) set.add(r.cycleNumber);
+    return Array.from(set).sort((a, b) => b - a);
+  }, [data]);
+
+  const filteredRecords = useMemo(() => {
+    if (!data) return [];
+    if (selectedCycle === "all") return data.records;
+    return data.records.filter((r) => r.cycleNumber === selectedCycle);
+  }, [data, selectedCycle]);
+
+  const chartData = useMemo(() => {
     const round = (v: number | null | undefined) => Math.round(Number(v ?? 0));
-    return data.records.map((r) => ({
+    return filteredRecords.map((r) => ({
       label: shortPeriodLabel(r),
       Revenue: round(r.MonthRevenue),
       RevenueBudget: round(r.MonthRevenueBudget),
@@ -186,7 +207,7 @@ export default function MemberPerformanceClient({
       YTDGrossProfit: round(r.YTDGrossProfit),
       YTDNetProfit: round(r.YTDNetProfit),
     }));
-  }, [data]);
+  }, [filteredRecords]);
 
   async function exportPdf() {
     if (!email || exporting) return;
@@ -195,7 +216,10 @@ export default function MemberPerformanceClient({
       const res = await fetch("/api/admin/member-performance/export", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userEmail: email }),
+        body: JSON.stringify({
+          userEmail: email,
+          cycleNumber: selectedCycle === "all" ? undefined : selectedCycle,
+        }),
       });
       if (!res.ok) {
         alert(await res.text());
@@ -283,9 +307,34 @@ export default function MemberPerformanceClient({
 
       {!loading && !error && data && (
         <>
+          {availableCycles.length >= 1 && (
+            <div className="mp-filter">
+              <label className="mp-filterLabel" htmlFor="mp-cycle">
+                Cycle
+              </label>
+              <select
+                id="mp-cycle"
+                className="mp-select"
+                value={selectedCycle === "all" ? "all" : String(selectedCycle)}
+                onChange={(e) =>
+                  setSelectedCycle(
+                    e.target.value === "all" ? "all" : Number(e.target.value),
+                  )
+                }
+              >
+                <option value="all">All cycles</option>
+                {availableCycles.map((c) => (
+                  <option key={c} value={c}>
+                    Cycle {c}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <section className="mp-section">
             <h2 className="mp-h2">Monthly performance</h2>
-            {data.records.length === 0 ? (
+            {filteredRecords.length === 0 ? (
               <p className="mp-hint">No performance records yet for this member.</p>
             ) : (
               <div className="mp-tableWrap">
@@ -307,7 +356,7 @@ export default function MemberPerformanceClient({
                     </tr>
                   </thead>
                   <tbody>
-                    {data.records.map((r) => (
+                    {filteredRecords.map((r) => (
                       <tr key={r.id}>
                         <td>C{r.cycleNumber}·P{r.periodNumber}</td>
                         <td>{r.month ?? "—"}</td>
@@ -331,7 +380,7 @@ export default function MemberPerformanceClient({
 
           <section className="mp-section">
             <h2 className="mp-h2">YTD performance</h2>
-            {data.records.length === 0 ? (
+            {filteredRecords.length === 0 ? (
               <p className="mp-hint">No performance records yet for this member.</p>
             ) : (
               <div className="mp-tableWrap">
@@ -347,7 +396,7 @@ export default function MemberPerformanceClient({
                     </tr>
                   </thead>
                   <tbody>
-                    {data.records.map((r) => (
+                    {filteredRecords.map((r) => (
                       <tr key={r.id}>
                         <td>C{r.cycleNumber}·P{r.periodNumber}</td>
                         <td>{r.month ?? "—"}</td>
@@ -365,7 +414,7 @@ export default function MemberPerformanceClient({
 
           <section className="mp-section">
             <h2 className="mp-h2">Trends</h2>
-            {data.records.length === 0 ? (
+            {filteredRecords.length === 0 ? (
               <p className="mp-hint">No data to chart yet.</p>
             ) : (
               <div className="mp-chartGrid">

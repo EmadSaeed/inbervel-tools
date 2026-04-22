@@ -218,3 +218,43 @@
 .mp-exportBtn:hover:not(:disabled) {
   background: rgba(167, 255, 114, 0.12);
 }
+
+.mp-filter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: -4px;
+}
+
+.mp-filterLabel {
+  font-size: 12px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.mp-select {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(233, 255, 233, 0.3);
+  color: #e9ffe9;
+  padding: 6px 28px 6px 12px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, #a7ff72 50%), linear-gradient(135deg, #a7ff72 50%, transparent 50%);
+  background-position: calc(100% - 14px) 52%, calc(100% - 9px) 52%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.mp-select:focus {
+  outline: 1px solid rgba(167, 255, 114, 0.6);
+  outline-offset: 1px;
+}
+
+.mp-select option {
+  color: #0C2218;
+}

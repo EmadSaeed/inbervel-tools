@@ -13,6 +13,7 @@ import { htmlToPdfBuffer } from "@/lib/pdf/generatePdf";
 
 const bodySchema = z.object({
   userEmail: z.string().email(),
+  cycleNumber: z.number().int().positive().optional(),
 });
 
 export const runtime = "nodejs";
@@ -34,7 +35,9 @@ export async function POST(req: NextRequest) {
   }
 
   const { html, filenameBase, displayName, found } =
-    await renderMemberPerformanceTemplate(parsed.data.userEmail);
+    await renderMemberPerformanceTemplate(parsed.data.userEmail, {
+      cycleNumber: parsed.data.cycleNumber,
+    });
 
   if (!found) {
     return NextResponse.json(

@@ -27,10 +27,11 @@ export type MemberPerformanceRenderResult = {
 
 export async function renderMemberPerformanceTemplate(
   userEmail: string,
+  opts: { cycleNumber?: number } = {},
 ): Promise<MemberPerformanceRenderResult> {
   const email = userEmail.toLowerCase().trim();
 
-  const [member, records, note] = await Promise.all([
+  const [member, allRecords, note] = await Promise.all([
     prisma.user.findUnique({
       where: { email },
       select: { companyName: true, firstName: true, lastName: true },
@@ -41,6 +42,13 @@ export async function renderMemberPerformanceTemplate(
       select: { content: true },
     }),
   ]);
+
+  // Apply the cycle filter here so every downstream derivation (serialised
+  // records, period-covered label, SVG charts, hasRecords, found) uses the
+  // same scoped list.
+  const records = opts.cycleNumber
+    ? allRecords.filter((r) => r.cycleNumber === opts.cycleNumber)
+    : allRecords;
 
   const memberName =
     [member?.firstName, member?.lastName].filter(Boolean).join(" ").trim() ||
