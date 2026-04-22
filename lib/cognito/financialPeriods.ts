@@ -138,6 +138,40 @@ async function createPeriodRecord(
     create: { userEmail, cycleNumber, periodNumber, ...data },
     update: data,
   });
+
+  // If this write landed in an older period (e.g. a backfilled gap), every
+  // later period's YTD is now stale — recompute running totals + pct fields
+  // for each later row in the cycle.
+  const laterRecords = await prisma.financialPeriodRecord.findMany({
+    where: { userEmail, cycleNumber, periodNumber: { gt: periodNumber } },
+    orderBy: { periodNumber: "asc" },
+  });
+
+  let ytdGp = YTDGrossProfit;
+  let ytdRev = YTDRevenue;
+  let ytdNp = YTDNetProfit;
+  for (const r of laterRecords) {
+    ytdGp += Number(r.MonthGrossProfit);
+    ytdRev += Number(r.MonthRevenue);
+    ytdNp += Number(r.MonthNetProfit);
+    const ytdGpBudget = Number(r.MonthGrossProfitBudget) * r.periodNumber;
+    const ytdRevBudget = Number(r.MonthRevenueBudget) * r.periodNumber;
+    const ytdNpBudget = Number(r.MonthNetProfitBudget) * r.periodNumber;
+    await prisma.financialPeriodRecord.update({
+      where: { id: r.id },
+      data: {
+        YTDGrossProfit: ytdGp,
+        YTDRevenue: ytdRev,
+        YTDNetProfit: ytdNp,
+        YTDGrossProfitBudget: ytdGpBudget,
+        YTDRevenueBudget: ytdRevBudget,
+        YTDNetProfitBudget: ytdNpBudget,
+        YTDGrossProfitPct: pct(ytdGp, ytdGpBudget),
+        YTDRevenuePct: pct(ytdRev, ytdRevBudget),
+        YTDNetProfitPct: pct(ytdNp, ytdNpBudget),
+      },
+    });
+  }
 }
 
 /**
@@ -148,6 +182,21 @@ async function resolveNextPeriod(userEmail: string, month: number, year: number)
   periodNumber: number;
   gapPeriods: { cycleNumber: number; periodNumber: number; month: number; year: number }[];
 }> {
+  // If a record already exists for this calendar month, update that slot in
+  // place. Covers two cases: resubmission of the same month, and late
+  // backfill of a gap-filled month whose slot was created when a later
+  // month was submitted first.
+  const existingForMonth = await prisma.financialPeriodRecord.findFirst({
+    where: { userEmail, month: MONTH_NAMES[month - 1], year },
+  });
+  if (existingForMonth) {
+    return {
+      cycleNumber: existingForMonth.cycleNumber,
+      periodNumber: existingForMonth.periodNumber,
+      gapPeriods: [],
+    };
+  }
+
   const latest = await prisma.financialPeriodRecord.findFirst({
     where: { userEmail },
     orderBy: [{ cycleNumber: "desc" }, { periodNumber: "desc" }],
@@ -171,11 +220,6 @@ async function resolveNextPeriod(userEmail: string, month: number, year: number)
   const lastDate = new Date(latest.recordedAt);
   const lastMonth = lastDate.getMonth() + 1; // 1-based
   const lastYear = lastDate.getFullYear();
-
-  // Same calendar month → overwrite current period
-  if (year === lastYear && month === lastMonth) {
-    return { cycleNumber: latest.cycleNumber, periodNumber: latest.periodNumber, gapPeriods: [] };
-  }
 
   const monthsElapsed = (year - lastYear) * 12 + (month - lastMonth);
 
