@@ -154,10 +154,10 @@ export default function MemberLogin() {
                         </>
                     )}
                 </div>
+                <p style={{ marginTop: 16, fontSize: 12, color: "rgba(255,255,255,0.6)", textAlign: "center", margin: "16px 0 0" }}>
+                    <a href="/admin/login" style={{ color: "inherit", textDecoration: "underline" }}>Admin login</a>
+                </p>
             </div>
-            <p style={{ position: "fixed", bottom: 16, left: 0, right: 0, fontSize: 12, color: "rgba(255,255,255,0.4)", textAlign: "center", margin: 0 }}>
-                <a href="/admin/login" style={{ color: "inherit", textDecoration: "underline" }}>Admin login</a>
-            </p>
         </div>
     );
 }
